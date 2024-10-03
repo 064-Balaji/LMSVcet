@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Department {
+  id           String    @id @default(cuid())
+  deptName     String
+  deptAcronym  String
+  deptHeadId   String?    @unique
+  deptHead     DeptHead?  @relation(fields: [deptHeadId], references: [id])
+  batches      Batch[]
+  students     Student[]
+  staffMembers Staff[]
+}
+
+model DeptHead {
+  id         String      @id @default(cuid())
+  staffId    String      @unique
+  staffName  String
+  staffMail  String      @unique
+  staffPhone String?
+  isHod      Boolean     @default(false)
+  department Department?
+}
+
+model Batch {
+  id              String     @id @default(cuid())
+  batchName       String
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id])
+  sections        Section[]
+  students        Student[]
+  classInChargeId String     @unique
+  classInCharge   Staff      @relation(fields: [classInChargeId], references: [id])
+}
+
+model Section {
+  id              String    @id @default(cuid())
+  sectionName     String
+  batchId         String
+  batch           Batch     @relation(fields: [batchId], references: [id])
+  classInchargeId String    @unique
+  classIncharge   Staff?    @relation(fields: [classInchargeId], references: [id])
+  mentors         Staff[]   @relation("Mentors")
+  students        Student[]
+}
+
+model Staff {
+  id              String      @id @default(cuid())
+  staffId         String      @unique
+  staffName       String
+  staffMail       String?     @unique
+  staffPhone      String?
+  staffRole       String      @default("Staff")
+  isMentor        Boolean     @default(false)
+  isClassIncharge Boolean     @default(false)
+  password        String
+  departmentId    String?
+  department      Department? @relation(fields: [departmentId], references: [id])
+  batchId         String?
+  batch           Batch?
+  sectionId       String?
+  section         Section?
+  mentorSections  Section[]   @relation("Mentors")
+}
+
+model Student {
+  id           String     @id @default(cuid())
+  rollNo       String     @unique
+  registerNo   String     @unique
+  name         String
+  email        String     @unique
+  phone        String
+  password     String
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  sectionId    String
+  section      Section    @relation(fields: [sectionId], references: [id])
+  batchId      String
+  batch        Batch      @relation(fields: [batchId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
