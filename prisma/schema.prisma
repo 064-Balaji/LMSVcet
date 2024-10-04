@@ -12,11 +12,12 @@ model Department {
   id           String    @id @default(cuid())
   deptName     String
   deptAcronym  String
-  deptHeadId   String?    @unique
-  deptHead     DeptHead?  @relation(fields: [deptHeadId], references: [id])
+  deptHeadId   String?   @unique
+  deptHead     DeptHead? @relation(fields: [deptHeadId], references: [id])
   batches      Batch[]
   students     Student[]
   staffMembers Staff[]
+  section      Section[]
 }
 
 model DeptHead {
@@ -36,18 +37,20 @@ model Batch {
   department      Department @relation(fields: [departmentId], references: [id])
   sections        Section[]
   students        Student[]
-  classInChargeId String     @unique
-  classInCharge   Staff      @relation(fields: [classInChargeId], references: [id])
+  classInChargeId String?    @unique
+  classInCharge   Staff?     @relation(fields: [classInChargeId], references: [id])
 }
 
 model Section {
-  id              String    @id @default(cuid())
+  id              String      @id @default(cuid())
   sectionName     String
   batchId         String
-  batch           Batch     @relation(fields: [batchId], references: [id])
-  classInchargeId String    @unique
-  classIncharge   Staff?    @relation(fields: [classInchargeId], references: [id])
-  mentors         Staff[]   @relation("Mentors")
+  batch           Batch       @relation(fields: [batchId], references: [id])
+  classInchargeId String?     @unique
+  classIncharge   Staff?      @relation(fields: [classInchargeId], references: [id])
+  deptId          String?
+  dept            Department? @relation(fields: [deptId], references: [id])
+  mentors         Staff[]     @relation("Mentors")
   students        Student[]
 }
 

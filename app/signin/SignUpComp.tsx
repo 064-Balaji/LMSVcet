@@ -33,15 +33,26 @@ const SignUpComp = () => {
 
   useEffect(() => {
     const fetchBatch = async () => {
-      const section = await axios.get(`/api/batch?dept=${curDept}`);
-      setBatch(section.data);
+      const batch = await axios.get(`/api/batch?dept=${curDept}`);
+      setBatch(batch.data);
     };
 
     fetchBatch();
   }, [curDept]);
 
+  useEffect(() => {
+    const fetchSec = async () => {
+      const section = await axios.get(
+        `/api/section?dept=${curDept}&batch=${curBatch}`
+      );
+      setSec(section.data);
+    };
+
+    fetchSec();
+  }, [curBatch]);
+
   return (
-    <form action="" className="flex flex-col gap-3 overflow-y-scroll">
+    <form className="flex flex-col gap-3 overflow-y-scroll">
       <Flex direction="column">
         <Text>Roll No:</Text>
         <TextField.Root placeholder="23LCSEB01">
@@ -109,7 +120,7 @@ const SignUpComp = () => {
         <Text>Batch:</Text>
         <Select.Root value={curBatch} onValueChange={setCurBatch}>
           <Select.Trigger>
-            {batch.map((b) => (b.id == curDept ? <>{b.batchName}</> : null))}
+            {batch.map((b) => (b.id == curBatch ? <>{b.batchName}</> : null))}
           </Select.Trigger>
           <Select.Content>
             {batch.map((b) => (
@@ -122,11 +133,14 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Section:</Text>
-        <TextField.Root placeholder="913122104302">
-          <TextField.Slot>
-            <House />
-          </TextField.Slot>
-        </TextField.Root>
+        <Select.Root value={curSec} onValueChange={setCurSec}>
+          <Select.Trigger>{curSec}</Select.Trigger>
+          <Select.Content>
+            {sec.map((s) => (
+              <Select.Item value={s.sectionName}>{s.sectionName}</Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
       </Flex>
       <Button>Hello</Button>
     </form>
