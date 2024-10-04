@@ -1,5 +1,5 @@
-import { Card, Flex, Heading, Tabs, Text, TextField } from "@radix-ui/themes";
-import { FileDigit, Key, User } from "lucide-react";
+import { Card, Flex, Heading, Tabs } from "@radix-ui/themes";
+import SignInComp from "./SignInComp";
 import SignUpComp from "./SignUpComp";
 
 const page = () => {
@@ -13,7 +13,10 @@ const page = () => {
           className="gap-3 p-4"
         >
           <Heading>Student Login</Heading>
-          <Tabs.Root className="flex flex-col gap-4 items-center">
+          <Tabs.Root
+            className="flex flex-col gap-4 items-center"
+            defaultValue="signup"
+          >
             <Tabs.List className="flex">
               <Tabs.Trigger value="signup">Sign Up</Tabs.Trigger>
               <Tabs.Trigger value="signin">Sign In</Tabs.Trigger>
@@ -22,18 +25,7 @@ const page = () => {
               <SignUpComp />
             </Tabs.Content>
             <Tabs.Content value="signin">
-              <form action="" className="w-[400px] flex flex-col gap-3">
-                <TextField.Root placeholder="username">
-                  <TextField.Slot>
-                    <User />
-                  </TextField.Slot>
-                </TextField.Root>
-                <TextField.Root placeholder="********">
-                  <TextField.Slot>
-                    <Key />
-                  </TextField.Slot>
-                </TextField.Root>
-              </form>
+              <SignInComp />
             </Tabs.Content>
           </Tabs.Root>
         </Flex>

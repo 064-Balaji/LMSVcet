@@ -1,11 +1,10 @@
 "use client";
 
-import { Department } from "@prisma/client";
+import { Batch, Department, Section } from "@prisma/client";
 import { Button, Flex, Select, Text, TextField } from "@radix-ui/themes";
 import axios from "axios";
 import {
   BookUser,
-  Building,
   CalendarDays,
   FileDigit,
   House,
@@ -14,11 +13,15 @@ import {
   Phone,
   User,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const SignUpComp = () => {
   const [curDept, setCurDept] = useState("");
+  const [curSec, setCurSec] = useState("");
+  const [curBatch, setCurBatch] = useState("");
   const [dept, setDept] = useState<Department[]>([]);
+  const [batch, setBatch] = useState<Batch[]>([]);
+  const [sec, setSec] = useState<Section[]>([]);
 
   useEffect(() => {
     const fetchDept = async () => {
@@ -27,6 +30,15 @@ const SignUpComp = () => {
     };
     fetchDept();
   }, []);
+
+  useEffect(() => {
+    const fetchBatch = async () => {
+      const section = await axios.get(`/api/batch?dept=${curDept}`);
+      setBatch(section.data);
+    };
+
+    fetchBatch();
+  }, [curDept]);
 
   return (
     <form action="" className="flex flex-col gap-3 overflow-y-scroll">
@@ -81,11 +93,29 @@ const SignUpComp = () => {
       <Flex direction="column">
         <Text>Department:</Text>
         <Select.Root value={curDept} onValueChange={setCurDept}>
-          <Select.Trigger>{curDept}</Select.Trigger>
+          <Select.Trigger>
+            {dept.map((d) => (d.id == curDept ? <>{d.deptName}</> : null))}
+          </Select.Trigger>
           <Select.Content>
-            {/* <Select.Item value="Hello">Choose the Department</Select.Item> */}
             {dept.map((d) => (
-              <Select.Item value={d.id}>{d.deptName}</Select.Item>
+              <Select.Item value={d.id} key={d.id}>
+                {d.deptName}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      </Flex>
+      <Flex direction="column">
+        <Text>Batch:</Text>
+        <Select.Root value={curBatch} onValueChange={setCurBatch}>
+          <Select.Trigger>
+            {batch.map((b) => (b.id == curDept ? <>{b.batchName}</> : null))}
+          </Select.Trigger>
+          <Select.Content>
+            {batch.map((b) => (
+              <Select.Item value={b.id} key={b.id}>
+                {b.batchName}
+              </Select.Item>
             ))}
           </Select.Content>
         </Select.Root>
@@ -95,14 +125,6 @@ const SignUpComp = () => {
         <TextField.Root placeholder="913122104302">
           <TextField.Slot>
             <House />
-          </TextField.Slot>
-        </TextField.Root>
-      </Flex>
-      <Flex direction="column">
-        <Text>Batch:</Text>
-        <TextField.Root placeholder="913122104302">
-          <TextField.Slot>
-            <CalendarDays />
           </TextField.Slot>
         </TextField.Root>
       </Flex>
