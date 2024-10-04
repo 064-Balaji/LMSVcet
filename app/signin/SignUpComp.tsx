@@ -1,24 +1,22 @@
 "use client";
 
-import { Batch, Department, Section } from "@prisma/client";
+import { Batch, Department, Section, Student } from "@prisma/client";
 import { Button, Flex, Select, Text, TextField } from "@radix-ui/themes";
 import axios from "axios";
-import {
-  BookUser,
-  CalendarDays,
-  FileDigit,
-  House,
-  Key,
-  Mail,
-  Phone,
-  User,
-} from "lucide-react";
+import { BookUser, FileDigit, Key, Mail, Phone, User } from "lucide-react";
 import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 const SignUpComp = () => {
-  const [curDept, setCurDept] = useState("");
-  const [curSec, setCurSec] = useState("");
-  const [curBatch, setCurBatch] = useState("");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<Student>();
+  const watchDept = watch("departmentId");
+  const watchBatch = watch("batchId");
   const [dept, setDept] = useState<Department[]>([]);
   const [batch, setBatch] = useState<Batch[]>([]);
   const [sec, setSec] = useState<Section[]>([]);
@@ -33,29 +31,34 @@ const SignUpComp = () => {
 
   useEffect(() => {
     const fetchBatch = async () => {
-      const batch = await axios.get(`/api/batch?dept=${curDept}`);
+      const batch = await axios.get(`/api/batch?dept=${watchDept}`);
       setBatch(batch.data);
     };
 
     fetchBatch();
-  }, [curDept]);
+  }, [watchDept]);
 
   useEffect(() => {
     const fetchSec = async () => {
       const section = await axios.get(
-        `/api/section?dept=${curDept}&batch=${curBatch}`
+        `/api/section?dept=${watchDept}&batch=${watchBatch}`
       );
       setSec(section.data);
     };
 
     fetchSec();
-  }, [curBatch]);
+  }, [watchBatch]);
+
+  const onSubmit: SubmitHandler<Student> = (data) => console.log(data);
 
   return (
-    <form className="flex flex-col gap-3 overflow-y-scroll">
+    <form
+      className="flex flex-col gap-3 overflow-y-scroll"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Flex direction="column">
         <Text>Roll No:</Text>
-        <TextField.Root placeholder="23LCSEB01">
+        <TextField.Root placeholder="23LCSEB01" {...register("rollNo")}>
           <TextField.Slot>
             <FileDigit />
           </TextField.Slot>
@@ -63,7 +66,7 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Register No:</Text>
-        <TextField.Root placeholder="913122104302">
+        <TextField.Root placeholder="913122104302" {...register("registerNo")}>
           <TextField.Slot>
             <BookUser />
           </TextField.Slot>
@@ -71,7 +74,7 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Name:</Text>
-        <TextField.Root placeholder="Balaji P N">
+        <TextField.Root placeholder="Balaji P N" {...register("name")}>
           <TextField.Slot>
             <User />
           </TextField.Slot>
@@ -79,7 +82,10 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Email:</Text>
-        <TextField.Root placeholder="balajipn005@gmail.com">
+        <TextField.Root
+          placeholder="balajipn005@gmail.com"
+          {...register("email")}
+        >
           <TextField.Slot>
             <Mail />
           </TextField.Slot>
@@ -87,7 +93,7 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Phone:</Text>
-        <TextField.Root placeholder="6379889613">
+        <TextField.Root placeholder="6379889613" {...register("phone")}>
           <TextField.Slot>
             <Phone />
           </TextField.Slot>
@@ -95,7 +101,7 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Password:</Text>
-        <TextField.Root placeholder="********">
+        <TextField.Root placeholder="********" {...register("password")}>
           <TextField.Slot>
             <Key />
           </TextField.Slot>
@@ -103,9 +109,13 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Department:</Text>
-        <Select.Root value={curDept} onValueChange={setCurDept}>
+        <Select.Root
+          value={watchDept}
+          onValueChange={(val) => setValue("departmentId", val)}
+          {...register("departmentId")}
+        >
           <Select.Trigger>
-            {dept.map((d) => (d.id == curDept ? <>{d.deptName}</> : null))}
+            {dept.map((d) => (d.id == watchDept ? <>{d.deptName}</> : null))}
           </Select.Trigger>
           <Select.Content>
             {dept.map((d) => (
@@ -118,7 +128,11 @@ const SignUpComp = () => {
       </Flex>
       <Flex direction="column">
         <Text>Batch:</Text>
-        <Select.Root value={curBatch} onValueChange={setCurBatch}>
+        <Select.Root
+          value={watchBatch}
+          onValueChange={(val) => setValue("batchId", val)}
+          {...register("batchId")}
+        >
           <Select.Trigger>
             {batch.map((b) => (b.id == curBatch ? <>{b.batchName}</> : null))}
           </Select.Trigger>
@@ -137,7 +151,9 @@ const SignUpComp = () => {
           <Select.Trigger>{curSec}</Select.Trigger>
           <Select.Content>
             {sec.map((s) => (
-              <Select.Item value={s.sectionName}>{s.sectionName}</Select.Item>
+              <Select.Item value={s.sectionName} key={s.id}>
+                {s.sectionName}
+              </Select.Item>
             ))}
           </Select.Content>
         </Select.Root>
