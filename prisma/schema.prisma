@@ -26,7 +26,6 @@ model DeptHead {
   staffName  String
   staffMail  String      @unique
   staffPhone String?
-  isHod      Boolean     @default(false)
   department Department?
 }
 
@@ -36,10 +35,6 @@ model Batch {
   departmentId    String
   department      Department @relation(fields: [departmentId], references: [id])
   sections        Section[]
-  students        Student[]
-  mentors         Staff[]    @relation("Mentors")
-  classInChargeId String?    @unique
-  classInCharge   Staff?     @relation(fields: [classInChargeId], references: [id])
 }
 
 model Section {
@@ -66,11 +61,8 @@ model Staff {
   password        String
   departmentId    String
   department      Department @relation(fields: [departmentId], references: [id])
-  batchId         String?
-  batch           Batch?
   sectionId       String?
   section         Section?
-  MentorBatches   Batch[]    @relation(name: "Mentors")
   mentorSections  Section[]  @relation("Mentors")
 }
 
@@ -86,8 +78,6 @@ model Student {
   department   Department @relation(fields: [departmentId], references: [id])
   sectionId    String
   section      Section    @relation(fields: [sectionId], references: [id])
-  batchId      String
-  batch        Batch      @relation(fields: [batchId], references: [id])
 }
 
 model VerificationToken {
