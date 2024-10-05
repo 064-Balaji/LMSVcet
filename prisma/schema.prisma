@@ -70,7 +70,7 @@ model Staff {
   batch           Batch?
   sectionId       String?
   section         Section?
-  MentorBatches   Batch[]    @relation("Mentors")
+  MentorBatches   Batch[]    @relation(name: "Mentors")
   mentorSections  Section[]  @relation("Mentors")
 }
 

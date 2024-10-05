@@ -10,10 +10,10 @@ import {
   TextField,
 } from "@radix-ui/themes";
 import axios from "axios";
-import { Key, LogIn, Mail, Phone, User } from "lucide-react";
+import { Key, Mail, Phone, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SubmitHandler, useForm, useFieldArray } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 const SignUpComp = () => {
   const {
@@ -26,27 +26,12 @@ const SignUpComp = () => {
   } = useForm<Staff>();
   const watchDept = watch("departmentId");
   const watchInCharge = watch("isClassIncharge");
-  const watchMentor = watch("isMentor");
-  const watchBatch = watch("batchId");
+  const [curBatch, setCurBatch] = useState("");
   const watchSec = watch("sectionId");
   const [dept, setDept] = useState<Department[]>([]);
   const [batch, setBatch] = useState<Batch[]>([]);
   const [sec, setSec] = useState<Section[]>([]);
-
   const router = useRouter();
-
-  const {
-    fields: mentorBatchFields,
-    append: addBatch,
-    remove: removeBatch,
-  } = useFieldArray({
-    control,
-    name: "",
-  });
-
-  const addMentorBatch = () => {
-    addBatch({ batchId: "", sectionId: "" });
-  };
 
   useEffect(() => {
     const fetchDept = async () => {
@@ -68,15 +53,19 @@ const SignUpComp = () => {
   useEffect(() => {
     const fetchSec = async () => {
       const section = await axios.get(
-        `/api/section?dept=${watchDept}&batch=${watchBatch}`
+        `/api/section?dept=${watchDept}&batch=${curBatch}`
       );
       setSec(section.data);
     };
 
-    if (watchBatch != "") fetchSec();
-  }, [watchBatch]);
+    if (curBatch != "") fetchSec();
+  }, [curBatch]);
 
-  const onSubmit: SubmitHandler<Staff> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<Staff> = (data) =>
+    axios
+      .post("/api/user/staff", data)
+      .then(() => router.push("/"))
+      .catch((e) => console.log(e));
 
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
@@ -160,7 +149,7 @@ const SignUpComp = () => {
       </Flex>
       <Flex align="center" gap="3">
         <Text>Are you Head of the Department? </Text>
-        <Switch {...register("isHoD")} />
+        <Switch onCheckedChange={(c) => setValue("isHoD", c)} />
       </Flex>
       <Flex align="center" gap="3">
         <Text>Are you Class In Charge? </Text>
@@ -176,16 +165,10 @@ const SignUpComp = () => {
         <Flex gap="2">
           <Flex direction="column" className="flex-1">
             <Text>Batch:</Text>
-            <Select.Root
-              value={watchBatch || undefined}
-              onValueChange={(val) => setValue("", val)}
-              {...register("batchId", {
-                required: "Batch must be selected",
-              })}
-            >
+            <Select.Root value={curBatch} onValueChange={setCurBatch}>
               <Select.Trigger>
                 {batch.map((b) =>
-                  b.id == watchBatch ? <>{b.batchName}</> : null
+                  b.id == curBatch ? <>{b.batchName}</> : null
                 )}
               </Select.Trigger>
               <Select.Content>
@@ -201,7 +184,7 @@ const SignUpComp = () => {
           <Flex direction="column" className="flex-1">
             <Text>Section:</Text>
             <Select.Root
-              value={watchBatch!}
+              value={watchSec!}
               onValueChange={(val) => setValue("sectionId", val)}
               {...register("sectionId", {
                 required: "Section must be selected",
@@ -225,8 +208,7 @@ const SignUpComp = () => {
         </Flex>
       )}
 
-      {/* Mentor Batch and Section Section */}
-      {watchMentor && (
+      {/* {watchMentor && (
         <Flex direction="column" gap="2">
           <Text>Mentor Batches and Sections:</Text>
           {mentorBatchFields.map((item, index) => (
@@ -235,10 +217,8 @@ const SignUpComp = () => {
                 <Text>Batch:</Text>
                 <Select.Root
                   value={watchBatch || undefined}
-                  onValueChange={(val) =>
-                    setValue(`mentorBatches.${index}.batchId`, val)
-                  }
-                  {...register(`mentorBatches.${index}.batchId`, {
+                  onValueChange={(val) => setValue("mentorBatchesId", [val])}
+                  {...register("mentorBatchesId", {
                     required: "Batch must be selected",
                   })}
                 >
@@ -286,11 +266,9 @@ const SignUpComp = () => {
           ))}
           <Button onClick={addMentorBatch}>Add Batch and Section</Button>
         </Flex>
-      )}
+      )} */}
 
-      <Button color="violet" type="submit">
-        Register
-      </Button>
+      <Button type="submit">Register</Button>
     </form>
   );
 };
