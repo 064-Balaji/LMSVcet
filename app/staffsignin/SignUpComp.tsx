@@ -85,7 +85,7 @@ const SignUpComp = () => {
         <Text>Email:</Text>
         <TextField.Root
           placeholder="balajipn005@gmail.com"
-          {...register("staffMail", {
+          {...register("email", {
             required: "Email is required",
             pattern: {
               value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
@@ -97,7 +97,7 @@ const SignUpComp = () => {
             <Mail />
           </TextField.Slot>
         </TextField.Root>
-        <Text color="red">{errors.staffMail?.message}</Text>
+        <Text color="red">{errors.email?.message}</Text>
       </Flex>
       <Flex direction="column">
         <Text>Phone:</Text>
@@ -179,7 +179,6 @@ const SignUpComp = () => {
                 ))}
               </Select.Content>
             </Select.Root>
-            <Text color="red">{errors.batchId?.message}</Text>
           </Flex>
           <Flex direction="column" className="flex-1">
             <Text>Section:</Text>

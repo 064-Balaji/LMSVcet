@@ -1,20 +1,50 @@
-import { TextField } from "@radix-ui/themes";
-import { User, Key } from "lucide-react";
-import React from "react";
+"use client";
+
+import { Button, TextField } from "@radix-ui/themes";
+import { User, Key, LogIn } from "lucide-react";
+import { signIn } from "next-auth/react";
+import React, { useState } from "react";
 
 const SignInComp = () => {
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
   return (
-    <form action="" className="w-[400px] flex flex-col gap-3">
-      <TextField.Root placeholder="username">
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        console.log(email, pass);
+        await signIn("credentials", {
+          email: email,
+          password: pass,
+          type: "staff",
+          redirectTo: "/",
+        });
+      }}
+      className="w-[400px] flex flex-col gap-3"
+    >
+      <TextField.Root
+        placeholder="username"
+        onChange={(v) => setEmail(v.target.value)}
+        value={email}
+        type="email"
+      >
         <TextField.Slot>
           <User />
         </TextField.Slot>
       </TextField.Root>
-      <TextField.Root placeholder="********">
+      <TextField.Root
+        placeholder="********"
+        type="password"
+        onChange={(v) => setPass(v.target.value)}
+      >
         <TextField.Slot>
           <Key />
         </TextField.Slot>
       </TextField.Root>
+      <Button>
+        Login
+        <LogIn />
+      </Button>
     </form>
   );
 };

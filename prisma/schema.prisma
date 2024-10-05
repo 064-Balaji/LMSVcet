@@ -30,11 +30,12 @@ model DeptHead {
 }
 
 model Batch {
-  id              String     @id @default(cuid())
-  batchName       String
-  departmentId    String
-  department      Department @relation(fields: [departmentId], references: [id])
-  sections        Section[]
+  id           String     @id @default(cuid())
+  batchName    String
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  sections     Section[]
+  student      Student[]
 }
 
 model Section {
@@ -53,7 +54,7 @@ model Section {
 model Staff {
   id              String     @id @default(cuid())
   staffName       String
-  staffMail       String     @unique
+  email           String     @unique
   staffPhone      String?
   isMentor        Boolean    @default(false)
   isClassIncharge Boolean    @default(false)
@@ -63,7 +64,8 @@ model Staff {
   department      Department @relation(fields: [departmentId], references: [id])
   sectionId       String?
   section         Section?
-  mentorSections  Section[]  @relation("Mentors")
+
+  mentorSections Section[] @relation("Mentors")
 }
 
 model Student {
@@ -78,6 +80,8 @@ model Student {
   department   Department @relation(fields: [departmentId], references: [id])
   sectionId    String
   section      Section    @relation(fields: [sectionId], references: [id])
+  batchId      String
+  batch        Batch      @relation(fields: [batchId], references: [id])
 }
 
 model VerificationToken {

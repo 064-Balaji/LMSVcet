@@ -1,30 +1,31 @@
 import { prisma } from "@/prisma/prisma";
 import { Staff } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import bcryptjs from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   const body: Staff = await req.json();
   if (!body) return NextResponse.json("Fields required and must be valid");
   const {
-    batchId,
     departmentId,
     isClassIncharge,
     isHoD,
     isMentor,
     password,
     sectionId,
-    staffMail,
+    email,
     staffName,
     staffPhone,
   } = body;
 
+  const hashedPass = await bcryptjs.hash(password, 10);
+
   const staff = await prisma.staff
     .create({
       data: {
-        password,
-        staffMail,
+        password: hashedPass,
+        email,
         staffName,
-        batchId,
         departmentId,
         isClassIncharge,
         isHoD,

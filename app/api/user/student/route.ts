@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma/prisma";
 import { Student } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import bcryptjs from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   const body: Student = await req.json();
@@ -16,14 +17,17 @@ export async function POST(req: NextRequest) {
     rollNo,
     sectionId,
   } = body;
+
+  const hashedPass = await bcryptjs.hash(password, 10);
+
   const user = await prisma.student
     .create({
       data: {
+        batchId,
         email,
         name,
-        batchId,
         departmentId,
-        password,
+        password: hashedPass,
         phone,
         registerNo,
         rollNo,
