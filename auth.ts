@@ -56,7 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  // pages: { signIn: "/signin" },
+  pages: { signIn: "/student/signin" },
 
   session: { strategy: "jwt" },
 });
