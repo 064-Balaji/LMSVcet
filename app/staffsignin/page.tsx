@@ -1,38 +1,33 @@
-import { Flex, Card, Tabs, Heading } from "@radix-ui/themes";
 import React from "react";
 import SignUpComp from "./SignUpComp";
 import SignInComp from "./SignInComp";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const page = () => {
+const Page = () => {
   return (
-    <Flex justify="center" align="center" className="min-h-svh py-4">
-      <Card>
-        <Flex
-          justify="between"
-          direction="column"
-          align="center"
-          className="gap-3 p-4"
-        >
-          <Heading>Staff Login</Heading>
-          <Tabs.Root
-            className="flex flex-col gap-4 items-center"
-            defaultValue="signup"
-          >
-            <Tabs.List className="flex">
-              <Tabs.Trigger value="signup">Sign Up</Tabs.Trigger>
-              <Tabs.Trigger value="signin">Sign In</Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content value="signup" className="w-[40rem]">
-              <SignUpComp />
-            </Tabs.Content>
-            <Tabs.Content value="signin">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-xl">
+        <div className="p-8">
+          <h1 className="text-3xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-8">
+            Staff Portal
+          </h1>
+          <Tabs defaultValue="signin" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            <TabsContent value="signin">
               <SignInComp />
-            </Tabs.Content>
-          </Tabs.Root>
-        </Flex>
+            </TabsContent>
+            <TabsContent value="signup">
+              <SignUpComp />
+            </TabsContent>
+          </Tabs>
+        </div>
       </Card>
-    </Flex>
+    </div>
   );
 };
 
-export default page;
+export default Page;

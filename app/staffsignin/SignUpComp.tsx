@@ -1,19 +1,21 @@
 "use client";
 
 import { Batch, Department, Section, Staff } from "@prisma/client";
-import {
-  Button,
-  Flex,
-  Select,
-  Switch,
-  Text,
-  TextField,
-} from "@radix-ui/themes";
 import axios from "axios";
-import { Key, Mail, Phone, User } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const SignUpComp = () => {
   const {
@@ -21,7 +23,6 @@ const SignUpComp = () => {
     handleSubmit,
     watch,
     setValue,
-    control,
     formState: { errors },
   } = useForm<Staff>();
   const watchDept = watch("departmentId");
@@ -43,48 +44,52 @@ const SignUpComp = () => {
 
   useEffect(() => {
     const fetchBatch = async () => {
-      const batch = await axios.get(`/api/batch?dept=${watchDept}`);
-      setBatch(batch.data);
+      if (watchDept) {
+        const batch = await axios.get(`/api/batch?dept=${watchDept}`);
+        setBatch(batch.data);
+      }
     };
-
-    if (watchDept != "") fetchBatch();
-  }, [watchInCharge]);
+    fetchBatch();
+  }, [watchDept, watchInCharge]);
 
   useEffect(() => {
     const fetchSec = async () => {
-      const section = await axios.get(
-        `/api/section?dept=${watchDept}&batch=${curBatch}`
-      );
-      setSec(section.data);
+      if (curBatch && watchDept) {
+        const section = await axios.get(
+          `/api/section?dept=${watchDept}&batch=${curBatch}`
+        );
+        setSec(section.data);
+      }
     };
-
-    if (curBatch != "") fetchSec();
-  }, [curBatch]);
+    fetchSec();
+  }, [curBatch, watchDept]);
 
   const onSubmit: SubmitHandler<Staff> = (data) =>
     axios
       .post("/api/user/staff", data)
       .then(() => router.push("/"))
-      .catch((e) => console.log(e));
+      .catch((e) => console.error(e));
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-      <Flex direction="column">
-        <Text>Name:</Text>
-        <TextField.Root
-          placeholder="Balaji P N"
-          {...register("staffName", { required: "Name is Required" })}
-        >
-          <TextField.Slot>
-            <User />
-          </TextField.Slot>
-        </TextField.Root>
-        <Text color="red">{errors.staffName?.message}</Text>
-      </Flex>
-      <Flex direction="column">
-        <Text>Email:</Text>
-        <TextField.Root
-          placeholder="balajipn005@gmail.com"
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="staffName">Name</Label>
+        <Input
+          id="staffName"
+          placeholder="John Doe"
+          {...register("staffName", { required: "Name is required" })}
+        />
+        {errors.staffName && (
+          <p className="text-red-500 text-sm">{errors.staffName.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          placeholder="john@example.com"
           {...register("email", {
             required: "Email is required",
             pattern: {
@@ -92,25 +97,28 @@ const SignUpComp = () => {
               message: "Invalid email address",
             },
           })}
-        >
-          <TextField.Slot>
-            <Mail />
-          </TextField.Slot>
-        </TextField.Root>
-        <Text color="red">{errors.email?.message}</Text>
-      </Flex>
-      <Flex direction="column">
-        <Text>Phone:</Text>
-        <TextField.Root placeholder="6379889613" {...register("staffPhone")}>
-          <TextField.Slot>
-            <Phone />
-          </TextField.Slot>
-        </TextField.Root>
-      </Flex>
-      <Flex direction="column">
-        <Text>Password:</Text>
-        <TextField.Root
-          placeholder="********"
+        />
+        {errors.email && (
+          <p className="text-red-500 text-sm">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="staffPhone">Phone</Label>
+        <Input
+          id="staffPhone"
+          type="tel"
+          placeholder="1234567890"
+          {...register("staffPhone")}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="••••••••"
           {...register("password", {
             required: "Password is required",
             minLength: {
@@ -118,156 +126,105 @@ const SignUpComp = () => {
               message: "Password must be at least 8 characters",
             },
           })}
-        >
-          <TextField.Slot>
-            <Key />
-          </TextField.Slot>
-        </TextField.Root>
-        <Text color="red">{errors.password?.message}</Text>
-      </Flex>
-      <Flex direction="column">
-        <Text>Department:</Text>
-        <Select.Root
+        />
+        {errors.password && (
+          <p className="text-red-500 text-sm">{errors.password.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="department">Department</Label>
+        <Select
           value={watchDept}
           onValueChange={(val) => setValue("departmentId", val)}
-          {...register("departmentId", {
-            required: "Department must be selected",
-          })}
         >
-          <Select.Trigger>
-            {dept.map((b) => (b.id == watchDept ? <>{b.deptName}</> : null))}
-          </Select.Trigger>
-          <Select.Content>
+          <SelectTrigger id="department">
+            <SelectValue placeholder="Select Department" />
+          </SelectTrigger>
+          <SelectContent>
             {dept.map((d) => (
-              <Select.Item value={d.id} key={d.id}>
+              <SelectItem key={d.id} value={d.id}>
                 {d.deptName}
-              </Select.Item>
+              </SelectItem>
             ))}
-          </Select.Content>
-        </Select.Root>
-        <Text color="red">{errors.departmentId?.message}</Text>
-      </Flex>
-      <Flex align="center" gap="3">
-        <Text>Are you Head of the Department? </Text>
-        <Switch onCheckedChange={(c) => setValue("isHoD", c)} />
-      </Flex>
-      <Flex align="center" gap="3">
-        <Text>Are you Class In Charge? </Text>
-        <Switch onCheckedChange={(c) => setValue("isClassIncharge", c)} />
-      </Flex>
-      <Flex align="center" gap="3">
-        <Text>Are you Mentor? </Text>
-        <Switch onCheckedChange={(c) => setValue("isMentor", c)} />
-      </Flex>
+          </SelectContent>
+        </Select>
+        {errors.departmentId && (
+          <p className="text-red-500 text-sm">{errors.departmentId.message}</p>
+        )}
+      </div>
 
-      {/* Class In-Charge Section */}
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="isHoD"
+          onCheckedChange={(checked: boolean) => setValue("isHoD", checked)}
+        />
+        <Label htmlFor="isHoD">Head of Department</Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="isClassIncharge"
+          onCheckedChange={(checked: boolean) =>
+            setValue("isClassIncharge", checked)
+          }
+        />
+        <Label htmlFor="isClassIncharge">Class In Charge</Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="isMentor"
+          onCheckedChange={(checked: boolean) => setValue("isMentor", checked)}
+        />
+        <Label htmlFor="isMentor">Mentor</Label>
+      </div>
+
       {watchInCharge && (
-        <Flex gap="2">
-          <Flex direction="column" className="flex-1">
-            <Text>Batch:</Text>
-            <Select.Root value={curBatch} onValueChange={setCurBatch}>
-              <Select.Trigger>
-                {batch.map((b) =>
-                  b.id == curBatch ? <>{b.batchName}</> : null
-                )}
-              </Select.Trigger>
-              <Select.Content>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="batch">Batch</Label>
+            <Select value={curBatch} onValueChange={setCurBatch}>
+              <SelectTrigger id="batch">
+                <SelectValue placeholder="Select Batch" />
+              </SelectTrigger>
+              <SelectContent>
                 {batch.map((b) => (
-                  <Select.Item value={b.id} key={b.id}>
+                  <SelectItem key={b.id} value={b.id}>
                     {b.batchName}
-                  </Select.Item>
+                  </SelectItem>
                 ))}
-              </Select.Content>
-            </Select.Root>
-          </Flex>
-          <Flex direction="column" className="flex-1">
-            <Text>Section:</Text>
-            <Select.Root
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="section">Section</Label>
+            <Select
               value={watchSec!}
               onValueChange={(val) => setValue("sectionId", val)}
-              {...register("sectionId", {
-                required: "Section must be selected",
-              })}
             >
-              <Select.Trigger>
-                {sec.map((b) =>
-                  b.id == watchSec ? <>{b.sectionName}</> : null
-                )}
-              </Select.Trigger>
-              <Select.Content>
-                {sec.map((b) => (
-                  <Select.Item value={b.id} key={b.id}>
-                    {b.sectionName}
-                  </Select.Item>
+              <SelectTrigger id="section">
+                <SelectValue placeholder="Select Section" />
+              </SelectTrigger>
+              <SelectContent>
+                {sec.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.sectionName}
+                  </SelectItem>
                 ))}
-              </Select.Content>
-            </Select.Root>
-            <Text color="red">{errors.sectionId?.message}</Text>
-          </Flex>
-        </Flex>
+              </SelectContent>
+            </Select>
+            {errors.sectionId && (
+              <p className="text-red-500 text-sm">{errors.sectionId.message}</p>
+            )}
+          </div>
+        </div>
       )}
 
-      {/* {watchMentor && (
-        <Flex direction="column" gap="2">
-          <Text>Mentor Batches and Sections:</Text>
-          {mentorBatchFields.map((item, index) => (
-            <Flex key={item.id} gap="2">
-              <Flex direction="column" className="flex-1">
-                <Text>Batch:</Text>
-                <Select.Root
-                  value={watchBatch || undefined}
-                  onValueChange={(val) => setValue("mentorBatchesId", [val])}
-                  {...register("mentorBatchesId", {
-                    required: "Batch must be selected",
-                  })}
-                >
-                  <Select.Trigger>
-                    {batch.map((b) =>
-                      b.id == watchBatch ? <>{b.batchName}</> : null
-                    )}
-                  </Select.Trigger>
-                  <Select.Content>
-                    {batch.map((b) => (
-                      <Select.Item value={b.id} key={b.id}>
-                        {b.batchName}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-              </Flex>
-              <Flex direction="column" className="flex-1">
-                <Text>Section:</Text>
-                <Select.Root
-                  value={watchSec || undefined}
-                  onValueChange={(val) =>
-                    setValue(`mentorBatches.${index}.sectionId`, val)
-                  }
-                  {...register(`mentorBatches.${index}.sectionId`, {
-                    required: "Section must be selected",
-                  })}
-                >
-                  <Select.Trigger>
-                    {sec.map((b) =>
-                      b.id == watchSec ? <>{b.sectionName}</> : null
-                    )}
-                  </Select.Trigger>
-                  <Select.Content>
-                    {sec.map((b) => (
-                      <Select.Item value={b.id} key={b.id}>
-                        {b.sectionName}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-              </Flex>
-              <Button onClick={() => removeBatch(index)}>Remove</Button>
-            </Flex>
-          ))}
-          <Button onClick={addMentorBatch}>Add Batch and Section</Button>
-        </Flex>
-      )} */}
-
-      <Button type="submit">Register</Button>
+      <Button type="submit" className="w-full">
+        Register
+      </Button>
     </form>
   );
 };
