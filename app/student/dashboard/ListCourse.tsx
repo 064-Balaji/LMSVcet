@@ -13,12 +13,15 @@ import Link from "next/link";
 
 const ListCourse = async () => {
   const session = await auth();
-  const user = await prisma.student.findUnique({
-    where: { id: session?.user.id },
+  console.log(session?.user.id);
+  const student = await prisma.student.findUnique({
+    where: {
+      id: session?.user.id,
+    },
   });
   const courses = await prisma.course
     .findMany({
-      where: { batchId: user?.batchId, sectionId: user?.sectionId },
+      where: { batchId: student?.batchId, sectionId: student?.sectionId },
       include: { staff: true },
     })
     .catch((e) => console.log(e));

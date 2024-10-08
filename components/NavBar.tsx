@@ -19,6 +19,7 @@ import { ModeToggle } from "./Toggle";
 
 const NavBar = async () => {
   const session = await auth();
+  console.log(session);
   const user = session?.user;
   const isStudentUser = session?.user.type === "student";
   // const isStaffUser = session?.user.type === 'staff';
@@ -87,26 +88,7 @@ const NavBar = async () => {
         </form>
         {session ? (
           <>
-          <h1 className=" capitalize">{user?.name}</h1>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <Link href={"/api/auth/signout"}>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
-            <h1>{user?.name}</h1>
+            {session.user.name}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" className="rounded-full">

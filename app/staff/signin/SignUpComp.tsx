@@ -68,22 +68,27 @@ const SignUpComp = () => {
   }, [curBatch, watchDept]);
 
   const onSubmit: SubmitHandler<Staff> = (data) => {
-    setIsSubmitting(true); 
+    setIsSubmitting(true);
     axios
       .post("/api/user/staff", data)
       .then(() => {
-        router.push("/staff/signin");  // Redirect on success
+        router.push("/staff/signin"); // Redirect on success
       })
       .catch((err) => {
-        console.log(err.response?.data?.message || "An error occurred during submission.");
+        console.log(
+          err.response?.data?.message || "An error occurred during submission."
+        );
       })
       .finally(() => {
-        setIsSubmitting(false);  
+        setIsSubmitting(false);
       });
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="grid grid-cols-1 md:grid-cols-2 gap-6"
+    >
       {/* Name Field */}
       <div className="space-y-2">
         <Label htmlFor="staffName">Name</Label>
@@ -247,18 +252,17 @@ const SignUpComp = () => {
 
       {/* Submit Button */}
       <div className="col-span-1 md:col-span-2">
-      <Button type="submit" className="w-full py-2 dark:bg-slate-400">
-            {isSubmitting ?
-              <ScaleLoader height={15} radius={50} color="white" />
-              :
-              <>
-                Signup <LogIn className="ml-2 h-4 w-4" />
-              </>
-            }
-          </Button>
+        <Button type="submit" className="w-full py-2 dark:bg-slate-400">
+          {isSubmitting ? (
+            <ScaleLoader height={15} radius={50} color="white" />
+          ) : (
+            <>
+              Signup <LogIn className="ml-2 h-4 w-4" />
+            </>
+          )}
+        </Button>
       </div>
     </form>
-
   );
 };
 
