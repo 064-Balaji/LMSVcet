@@ -59,7 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               user?.password!
             )
           ) {
-            return { ...user, type: credentials.type, id: user?.id } as User;
+            return { ...user, type: credentials.type, id: user?.id, name:user?.staffName } as User;
           } else throw new Error("Credentials required");
         }
         return null;
@@ -71,6 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.type = (user as User).type;
         token.id = user.id; 
+        token.name = user.name; 
       }
       return token;
     },
@@ -78,6 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.type = token.type as string;
         session.user.id = token.id as string; 
+        session.user.name = token.name as string; 
       }
       return session;
     },
