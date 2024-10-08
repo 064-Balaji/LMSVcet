@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScaleLoader } from "react-spinners";
+import { LogIn } from "lucide-react";
 
 const SignUpComp = () => {
   const {
@@ -33,6 +35,7 @@ const SignUpComp = () => {
   const [batch, setBatch] = useState<Batch[]>([]);
   const [sec, setSec] = useState<Section[]>([]);
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchDept = async () => {
@@ -64,14 +67,24 @@ const SignUpComp = () => {
     fetchSec();
   }, [curBatch, watchDept]);
 
-  const onSubmit: SubmitHandler<Staff> = (data) =>
+  const onSubmit: SubmitHandler<Staff> = (data) => {
+    setIsSubmitting(true); 
     axios
       .post("/api/user/staff", data)
-      .then(() => router.push("/"))
-      .catch((e) => console.error(e));
+      .then(() => {
+        router.push("/staff/signin");  // Redirect on success
+      })
+      .catch((err) => {
+        console.log(err.response?.data?.message || "An error occurred during submission.");
+      })
+      .finally(() => {
+        setIsSubmitting(false);  
+      });
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Name Field */}
       <div className="space-y-2">
         <Label htmlFor="staffName">Name</Label>
         <Input
@@ -84,6 +97,7 @@ const SignUpComp = () => {
         )}
       </div>
 
+      {/* Email Field */}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -103,6 +117,7 @@ const SignUpComp = () => {
         )}
       </div>
 
+      {/* Phone Field */}
       <div className="space-y-2">
         <Label htmlFor="staffPhone">Phone</Label>
         <Input
@@ -113,6 +128,7 @@ const SignUpComp = () => {
         />
       </div>
 
+      {/* Password Field */}
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
@@ -132,7 +148,8 @@ const SignUpComp = () => {
         )}
       </div>
 
-      <div className="space-y-2">
+      {/* Department Field */}
+      <div className="space-y-2 col-span-1 md:col-span-2">
         <Label htmlFor="department">Department</Label>
         <Select
           value={watchDept}
@@ -154,34 +171,40 @@ const SignUpComp = () => {
         )}
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isHoD"
-          onCheckedChange={(checked: boolean) => setValue("isHoD", checked)}
-        />
-        <Label htmlFor="isHoD">Head of Department</Label>
+      {/* Role Checkboxes */}
+      <div className="flex gap-3 flex-col ">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="isHoD"
+            onCheckedChange={(checked: boolean) => setValue("isHoD", checked)}
+          />
+          <Label htmlFor="isHoD">Head of Department</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="isClassIncharge"
+            onCheckedChange={(checked: boolean) =>
+              setValue("isClassIncharge", checked)
+            }
+          />
+          <Label htmlFor="isClassIncharge">Class In Charge</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="isMentor"
+            onCheckedChange={(checked: boolean) =>
+              setValue("isMentor", checked)
+            }
+          />
+          <Label htmlFor="isMentor">Mentor</Label>
+        </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isClassIncharge"
-          onCheckedChange={(checked: boolean) =>
-            setValue("isClassIncharge", checked)
-          }
-        />
-        <Label htmlFor="isClassIncharge">Class In Charge</Label>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isMentor"
-          onCheckedChange={(checked: boolean) => setValue("isMentor", checked)}
-        />
-        <Label htmlFor="isMentor">Mentor</Label>
-      </div>
-
+      {/* Batch and Section Fields (Visible when Class In Charge is selected) */}
       {watchInCharge && (
-        <div className="space-y-4">
+        <div className="space-y-4 col-span-1 md:col-span-2">
           <div className="space-y-2">
             <Label htmlFor="batch">Batch</Label>
             <Select value={curBatch} onValueChange={setCurBatch}>
@@ -222,10 +245,20 @@ const SignUpComp = () => {
         </div>
       )}
 
-      <Button type="submit" className="w-full">
-        Register
-      </Button>
+      {/* Submit Button */}
+      <div className="col-span-1 md:col-span-2">
+      <Button type="submit" className="w-full py-2 dark:bg-slate-400">
+            {!isSubmitting ?
+              <ScaleLoader height={15} radius={50} color="white" />
+              :
+              <>
+                Signup <LogIn className="ml-2 h-4 w-4" />
+              </>
+            }
+          </Button>
+      </div>
     </form>
+
   );
 };
 
