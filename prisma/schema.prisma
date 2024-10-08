@@ -18,6 +18,7 @@ model Department {
   students     Student[]
   staffMembers Staff[]
   section      Section[]
+  courses      Course[]
 }
 
 model DeptHead {
@@ -36,6 +37,7 @@ model Batch {
   department   Department @relation(fields: [departmentId], references: [id])
   sections     Section[]
   student      Student[]
+  courses      Course[]
 }
 
 model Section {
@@ -49,6 +51,7 @@ model Section {
   dept            Department? @relation(fields: [deptId], references: [id])
   mentors         Staff[]     @relation("Mentors")
   students        Student[]
+  courses         Course[]
 }
 
 model Staff {
@@ -90,4 +93,17 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+model Course {
+  id           String     @id @default(cuid())
+  title        String
+  description  String
+  code         String
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  batchId      String
+  batch        Batch      @relation(fields: [batchId], references: [id])
+  sectionId    String
+  section      Section    @relation(fields: [sectionId], references: [id])
 }

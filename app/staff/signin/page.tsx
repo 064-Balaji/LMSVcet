@@ -14,8 +14,8 @@ const Page = () => {
           </h1>
           <Tabs defaultValue="signin" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <SignInComp />

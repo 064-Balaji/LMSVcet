@@ -1,9 +1,21 @@
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "./prisma/prisma";
 import bcryptjs from "bcryptjs";
-import { error } from "console";
+import NextAuth, { DefaultSession, User as NextAuthUser } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import Credentials from "next-auth/providers/credentials";
+import { prisma } from "./prisma/prisma";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      type: string;
+    } & DefaultSession["user"];
+  }
+}
+
+interface User extends NextAuthUser {
+  type: string;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -14,7 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { type: "password" },
         type: { type: "string" },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials): Promise<User | null> => {
         let user;
         if (!credentials) throw new Error("Credentials required");
         if (credentials.type == "student") {
@@ -32,7 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             )
           ) {
             console.log("User Logged in");
-            return user;
+            return { ...user, type: "student", id: user?.id! } as User;
           } else throw new Error("Credentials required");
         } else if (credentials.type == "staff") {
           const user = await prisma.staff
@@ -49,14 +61,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             )
           ) {
             console.log("User Logged in");
-            return user;
+            return { ...user, type: "staff" } as User;
           } else throw new Error("Credentials required");
         }
         return null;
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.type = (user as User).type;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.type = token.type as string;
+      }
+      return session;
+    },
+  },
   pages: { signIn: "/student/signin" },
-
   session: { strategy: "jwt" },
 });
