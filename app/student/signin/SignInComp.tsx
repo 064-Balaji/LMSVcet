@@ -28,6 +28,12 @@ const SignInComp = () => {
     } finally {
       setIsSubmitting(false);
     }
+    await signIn("credentials", {
+      email: email,
+      password: pass,
+      type: "student",
+      redirectTo: "/",
+    });
   };
 
 
