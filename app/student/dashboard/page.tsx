@@ -1,7 +1,12 @@
 import React from "react";
+import ListCourse from "./ListCourse";
 
 const page = () => {
-  return <div>page</div>;
+  return (
+    <div>
+      <ListCourse />
+    </div>
+  );
 };
 
 export default page;

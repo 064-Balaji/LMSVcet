@@ -19,11 +19,10 @@ import { ModeToggle } from "./Toggle";
 
 const NavBar = async () => {
   const session = await auth();
-  console.log(session);
   const user = session?.user;
-  const isStudentUser = session?.user.type === 'student';
-  // const isStaffUser = session?.user.type === 'staff'; 
-  const navLinks = isStudentUser ? studentsNavLinks : staffNavLinks
+  const isStudentUser = session?.user.type === "student";
+  // const isStaffUser = session?.user.type === 'staff';
+  const navLinks = isStudentUser ? studentsNavLinks : staffNavLinks;
 
   return (
     <header className="sticky top-0 z-10 justify-between flex h-16 items-center gap-4 shadow-md bg-background px-4 md:px-6">
@@ -35,16 +34,16 @@ const NavBar = async () => {
           <Book className="h-6 w-6" />
           <span className="sr-only">Acme Inc</span>
         </Link>
-        {user && navLinks.map((link, index) => (
-          <Link
-            key={index}
-            href={link.href}
-            className="text-foreground transition-colors hover:text-foreground"
-          >
-            {link.title}
-          </Link>
-        ))}
-
+        {user &&
+          navLinks.map((link, index) => (
+            <Link
+              key={index}
+              href={link.href}
+              className="text-foreground transition-colors hover:text-foreground"
+            >
+              {link.title}
+            </Link>
+          ))}
       </nav>
       <Sheet>
         <SheetTrigger asChild>
@@ -62,15 +61,16 @@ const NavBar = async () => {
               <Book className="h-6 w-6" />
               <span className="sr-only">Acme Inc</span>
             </Link>
-            {user && navLinks.map((link, index) => (
-              <Link
-                key={index}
-                href={link.href}
-                className="text-foreground transition-colors hover:text-foreground"
-              >
-                {link.title}
-              </Link>
-            ))}
+            {user &&
+              navLinks.map((link, index) => (
+                <Link
+                  key={index}
+                  href={link.href}
+                  className="text-foreground transition-colors hover:text-foreground"
+                >
+                  {link.title}
+                </Link>
+              ))}
           </nav>
         </SheetContent>
       </Sheet>
@@ -87,25 +87,25 @@ const NavBar = async () => {
         </form>
         {session ? (
           <>
-          <h1>{user?.name}</h1>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <Link href={"/api/auth/signout"}>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <h1>{user?.name}</h1>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" className="rounded-full">
+                  <CircleUser className="h-5 w-5" />
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <Link href={"/api/auth/signout"}>
+                  <DropdownMenuItem>Logout</DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </>
         ) : (
           <DropdownMenu>
