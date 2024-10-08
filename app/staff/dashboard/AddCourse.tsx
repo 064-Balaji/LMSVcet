@@ -48,6 +48,7 @@ const AddCourse = () => {
   const [selectedDept, setSelectedDept] = useState<string>("");
   const [selectedBatch, setSelectedBatch] = useState<string>("");
   const [selectedSection, setSelectedSection] = useState<string>("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchDept = async () => {
@@ -126,13 +127,15 @@ const AddCourse = () => {
     } catch (error) {
       console.error("Error adding course:", error);
       // Here you might want to show an error message to the user
+    } finally {
+      setIsDialogOpen(false);
     }
   };
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen}>
       <DialogTrigger>
-        <Button className="gap-2">
+        <Button onClick={() => setIsDialogOpen(!isDialogOpen)} className="gap-2">
           <span>Add Course</span>
           <BadgePlus />
         </Button>

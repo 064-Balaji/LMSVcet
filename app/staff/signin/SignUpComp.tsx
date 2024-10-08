@@ -248,7 +248,7 @@ const SignUpComp = () => {
       {/* Submit Button */}
       <div className="col-span-1 md:col-span-2">
       <Button type="submit" className="w-full py-2 dark:bg-slate-400">
-            {!isSubmitting ?
+            {isSubmitting ?
               <ScaleLoader height={15} radius={50} color="white" />
               :
               <>

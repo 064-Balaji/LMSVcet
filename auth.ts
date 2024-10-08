@@ -59,7 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               user?.password!
             )
           ) {
-            return { ...user, type: "staff" } as User;
+            return { ...user, type: credentials.type, id: user?.id } as User;
           } else throw new Error("Credentials required");
         }
         return null;
@@ -70,12 +70,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.type = (user as User).type;
+        token.id = user.id; 
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.type = token.type as string;
+        session.user.id = token.id as string; 
       }
       return session;
     },

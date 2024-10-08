@@ -67,6 +67,7 @@ model Staff {
   department      Department @relation(fields: [departmentId], references: [id])
   sectionId       String?
   section         Section?
+  courses         Course[]
 
   mentorSections Section[] @relation("Mentors")
 }
@@ -101,6 +102,8 @@ model Course {
   description  String?
   code         String
   departmentId String
+  staffId      String
+  staff        Staff      @relation(fields: [staffId], references: [id])
   department   Department @relation(fields: [departmentId], references: [id])
   batchId      String
   batch        Batch      @relation(fields: [batchId], references: [id])
