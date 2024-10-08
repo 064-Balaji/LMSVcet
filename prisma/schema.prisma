@@ -97,17 +97,27 @@ model VerificationToken {
 }
 
 model Course {
-  id           String     @id @default(cuid())
+  id           String      @id @default(cuid())
   title        String
   description  String?
   code         String
   departmentId String
   staffId      String
-  staff        Staff      @relation(fields: [staffId], references: [id])
-  department   Department @relation(fields: [departmentId], references: [id])
+  staff        Staff       @relation(fields: [staffId], references: [id])
+  department   Department  @relation(fields: [departmentId], references: [id])
   batchId      String
-  batch        Batch      @relation(fields: [batchId], references: [id])
+  batch        Batch       @relation(fields: [batchId], references: [id])
   sectionId    String
-  section      Section    @relation(fields: [sectionId], references: [id])
+  section      Section     @relation(fields: [sectionId], references: [id])
+  materials    Materials[]
   // img          String?
+}
+
+model Materials {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  docs        String[]
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
 }
