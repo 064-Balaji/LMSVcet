@@ -2,69 +2,92 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Key, LogIn } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import {  LogIn } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { BeatLoader } from "react-spinners";
 
 const SignInComp = () => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(email, pass);
-    await signIn("credentials", {
-      email: email,
-      password: pass,
-      type: "student",
-      redirectTo: "/",
-    });
+    setIsSubmitting(true);
+    try {
+      await signIn("credentials", {
+        email: email,
+        password: pass,
+        type: "student",
+        redirectTo: "/",
+      });
+    } catch (error) {
+      console.error("Login failed", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-4">
-      <div className="space-y-2">
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Email
-        </label>
-        <div className="relative">
-          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+    <div className="w-full px-8 space-y-6 rounded-lg shadow-lg">
+      <h2 className="text-3xl font-bold text-center ">
+        Welcome Back
+      </h2>
+      <p className="text-sm text-center">
+        Sign in to your account to access the platform
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Email Field */}
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium ">
+            Email Address
+          </Label>
           <Input
             id="email"
             type="email"
             placeholder="you@example.com"
-            className="pl-10"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-      </div>
-      <div className="space-y-2">
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Password
-        </label>
-        <div className="relative">
-          <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-          <Input
-            id="password"
-            type="password"
-            placeholder="********"
-            className="pl-10"
-            value={pass}
-            onChange={(e) => setPass(e.target.value)}
-          />
+
+        {/* Password Field */}
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-sm font-medium ">
+            Password
+          </Label>
+           <Input
+             id="password"
+             type="password"
+             placeholder="********"
+             value={pass}
+             onChange={(e) => setPass(e.target.value)}
+           />
         </div>
+
+        {/* Sign In Button */}
+        <Button type="submit" className="w-full dark:bg-slate-400 py-2 rounded-md flex items-center justify-center transition duration-300 ease-in-out">
+        {isSubmitting ?
+              <BeatLoader size={10} color="white"/>
+              :
+              <>
+                Signup <LogIn className="ml-2 h-4 w-4" />
+              </>
+            }
+        </Button>
+      </form>
+
+      {/* Additional Links */}
+      <div className="text-center">
+        <a href="#" className="text-sm text-indigo-600 hover:underline">
+          Forgot password?
+        </a>
       </div>
-      <Button type="submit" className="w-full">
-        Login <LogIn className="ml-2 h-4 w-4" />
-      </Button>
-    </form>
+    </div>
+    
   );
 };
 
