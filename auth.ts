@@ -43,7 +43,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               user?.password!
             )
           ) {
-            console.log("User Logged in");
             return { ...user, type: "student", id: user?.id! } as User;
           } else throw new Error("Credentials required");
         } else if (credentials.type == "staff") {
@@ -60,7 +59,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               user?.password!
             )
           ) {
-            console.log("User Logged in");
             return { ...user, type: "staff" } as User;
           } else throw new Error("Credentials required");
         }
