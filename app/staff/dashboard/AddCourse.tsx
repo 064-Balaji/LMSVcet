@@ -28,7 +28,7 @@ import { Batch, Course, Department, Section } from "@prisma/client";
 import axios from "axios";
 import { BadgePlus, Check } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 const AddCourse = () => {
   const {
@@ -118,6 +118,17 @@ const AddCourse = () => {
     return <div>Loading...</div>;
   }
 
+  const onSubmit: SubmitHandler<Course> = async (data) => {
+    try {
+      const response = await axios.post("/api/course/add", data);
+      console.log("Course added successfully:", response.data);
+      // Here you might want to close the dialog or show a success message
+    } catch (error) {
+      console.error("Error adding course:", error);
+      // Here you might want to show an error message to the user
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger>
@@ -130,146 +141,182 @@ const AddCourse = () => {
         <DialogHeader>
           <DialogTitle>New Course</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-4">
-            <div className="flex flex-1 items-center gap-2">
-              <span className="min-w-fit">Course Title:</span>
-              <Input {...register("title")} />
-            </div>
-            <div className="flex flex-1 items-center gap-2">
-              <span className="min-w-fit">Course Code:</span>
-              <Input {...register("code")} />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="min-w-fit">Course Description:</span>
-            <Textarea {...register("description")} />
-          </div>
-          <div className="flex gap-2">
-            <div className="flex flex-col align-middle gap-1">
-              <Label>Department</Label>
-              <Popover>
-                <PopoverTrigger>
-                  <Button
-                    variant="outline"
-                    className="w-[200px] justify-between"
-                  >
-                    {selectedDept || "Select Department"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <Command>
-                    <CommandInput placeholder="search department" />
-                    <CommandList>
-                      <CommandEmpty>No Department Found.</CommandEmpty>
-                      <CommandGroup>
-                        {dept.map((d) => (
-                          <CommandItem
-                            key={d.id}
-                            value={d.id}
-                            onSelect={handleDeptSelect}
-                          >
-                            <Check
-                              className={
-                                selectedDept === d.deptName
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              }
-                            />
-                            {d.deptName}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <div className="flex flex-1 flex-col gap-1">
+                <Label htmlFor="title">Course Title:</Label>
+                <Input
+                  id="title"
+                  {...register("title", { required: "Title is required" })}
+                />
+                {errors.title && (
+                  <span className="text-red-500 text-sm">
+                    {errors.title.message}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-1 flex-col gap-1">
+                <Label htmlFor="code">Course Code:</Label>
+                <Input
+                  id="code"
+                  {...register("code", { required: "Course code is required" })}
+                />
+                {errors.code && (
+                  <span className="text-red-500 text-sm">
+                    {errors.code.message}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex flex-col gap-1">
-              <Label>Batch</Label>
-              <Popover>
-                <PopoverTrigger>
-                  <Button
-                    variant="outline"
-                    className="w-[200px] justify-between"
-                    disabled={!watchDept}
-                  >
-                    {selectedBatch || "Select Batch"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <Command>
-                    <CommandInput placeholder="search batch" />
-                    <CommandList>
-                      <CommandEmpty>No Batch Found.</CommandEmpty>
-                      <CommandGroup>
-                        {batch.map((b) => (
-                          <CommandItem
-                            key={b.id}
-                            value={b.id}
-                            onSelect={handleBatchSelect}
-                          >
-                            <Check
-                              className={
-                                selectedBatch === b.batchName
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              }
-                            />
-                            {b.batchName}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="description">Course Description:</Label>
+              <Textarea id="description" {...register("description")} />
             </div>
-            <div className="flex flex-col  gap-1">
-              <Label>Section</Label>
-              <Popover>
-                <PopoverTrigger>
-                  <Button
-                    variant="outline"
-                    className="w-[200px] justify-between"
-                    disabled={!watchBatch}
-                  >
-                    {selectedSection || "Select Section"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <Command>
-                    <CommandInput placeholder="search section" />
-                    <CommandList>
-                      <CommandEmpty>No Section Found.</CommandEmpty>
-                      <CommandGroup>
-                        {sec.map((s) => (
-                          <CommandItem
-                            key={s.id}
-                            value={s.id}
-                            onSelect={handleSectionSelect}
-                          >
-                            <Check
-                              className={
-                                selectedSection === s.sectionName
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              }
-                            />
-                            {s.sectionName}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+            <div className="flex gap-2">
+              <div className="flex flex-col gap-1">
+                <Label>Department</Label>
+                <Popover>
+                  <PopoverTrigger>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-[200px] justify-between"
+                    >
+                      {selectedDept || "Select Department"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <Command>
+                      <CommandInput placeholder="search department" />
+                      <CommandList>
+                        <CommandEmpty>No Department Found.</CommandEmpty>
+                        <CommandGroup>
+                          {dept.map((d) => (
+                            <CommandItem
+                              key={d.id}
+                              value={d.id}
+                              onSelect={handleDeptSelect}
+                            >
+                              <Check
+                                className={
+                                  selectedDept === d.deptName
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                }
+                              />
+                              {d.deptName}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {errors.departmentId && (
+                  <span className="text-red-500 text-sm">
+                    Department is required
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label>Batch</Label>
+                <Popover>
+                  <PopoverTrigger>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-[200px] justify-between"
+                      disabled={!watchDept}
+                    >
+                      {selectedBatch || "Select Batch"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <Command>
+                      <CommandInput placeholder="search batch" />
+                      <CommandList>
+                        <CommandEmpty>No Batch Found.</CommandEmpty>
+                        <CommandGroup>
+                          {batch.map((b) => (
+                            <CommandItem
+                              key={b.id}
+                              value={b.id}
+                              onSelect={handleBatchSelect}
+                            >
+                              <Check
+                                className={
+                                  selectedBatch === b.batchName
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                }
+                              />
+                              {b.batchName}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {errors.batchId && (
+                  <span className="text-red-500 text-sm">
+                    Batch is required
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label>Section</Label>
+                <Popover>
+                  <PopoverTrigger>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-[200px] justify-between"
+                      disabled={!watchBatch}
+                    >
+                      {selectedSection || "Select Section"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <Command>
+                      <CommandInput placeholder="search section" />
+                      <CommandList>
+                        <CommandEmpty>No Section Found.</CommandEmpty>
+                        <CommandGroup>
+                          {sec.map((s) => (
+                            <CommandItem
+                              key={s.id}
+                              value={s.id}
+                              onSelect={handleSectionSelect}
+                            >
+                              <Check
+                                className={
+                                  selectedSection === s.sectionName
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                }
+                              />
+                              {s.sectionName}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {errors.sectionId && (
+                  <span className="text-red-500 text-sm">
+                    Section is required
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <Button type="submit">Create the Course</Button>
             </div>
           </div>
-          <div className="flex flex-col">
-            <Button>Create the Course</Button>
-          </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

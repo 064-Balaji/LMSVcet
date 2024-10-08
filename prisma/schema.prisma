@@ -98,7 +98,7 @@ model VerificationToken {
 model Course {
   id           String     @id @default(cuid())
   title        String
-  description  String
+  description  String?
   code         String
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id])
