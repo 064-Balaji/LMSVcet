@@ -122,10 +122,8 @@ const AddCourse = () => {
   const onSubmit: SubmitHandler<Course> = async (data) => {
     try {
       const response = await axios.post("/api/course/add", data);
-      console.log("Course added successfully:", response.data);
       // Here you might want to close the dialog or show a success message
     } catch (error) {
-      console.error("Error adding course:", error);
       // Here you might want to show an error message to the user
     } finally {
       setIsDialogOpen(false);

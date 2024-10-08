@@ -14,9 +14,7 @@ const SignInComp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(email,password);
-    
+    e.preventDefault();    
     setIsSubmitting(true);
     try {
       await signIn("credentials", {

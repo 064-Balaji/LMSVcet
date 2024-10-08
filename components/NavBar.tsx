@@ -87,7 +87,7 @@ const NavBar = async () => {
         </form>
         {session ? (
           <>
-          <h1>{user?.name}</h1>
+          <h1 className=" capitalize">{user?.name}</h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" className="rounded-full">
