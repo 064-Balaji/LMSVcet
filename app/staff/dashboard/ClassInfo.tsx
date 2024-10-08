@@ -1,23 +1,14 @@
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { prisma } from "@/prisma/prisma";
+import { Session } from "next-auth";
 
-const ClassInfo = async () => {
-  const dept = await prisma.department.findMany();
-  return <div className="flex items-center gap-3"></div>;
+const ClassInfo = async ({ user }: { user: Session }) => {
+  const classIn = await prisma.section.findUnique({
+    where: { classInchargeId: user.user.id },
+  });
+
+  if (!classIn) return null;
+
+  return <div className="flex items-center gap-3">Hello Class Incharge</div>;
 };
 
 export default ClassInfo;

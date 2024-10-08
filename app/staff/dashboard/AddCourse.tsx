@@ -48,7 +48,6 @@ const AddCourse = () => {
   const [selectedDept, setSelectedDept] = useState<string>("");
   const [selectedBatch, setSelectedBatch] = useState<string>("");
   const [selectedSection, setSelectedSection] = useState<string>("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchDept = async () => {
@@ -122,18 +121,15 @@ const AddCourse = () => {
   const onSubmit: SubmitHandler<Course> = async (data) => {
     try {
       const response = await axios.post("/api/course/add", data);
-      // Here you might want to close the dialog or show a success message
     } catch (error) {
-      // Here you might want to show an error message to the user
-    } finally {
-      setIsDialogOpen(false);
+      console.error(error);
     }
   };
 
   return (
-    <Dialog open={isDialogOpen}>
+    <Dialog>
       <DialogTrigger>
-        <Button onClick={() => setIsDialogOpen(!isDialogOpen)} className="gap-2">
+        <Button className="gap-2">
           <span>Add Course</span>
           <BadgePlus />
         </Button>
