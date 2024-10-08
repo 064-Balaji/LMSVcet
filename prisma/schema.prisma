@@ -109,4 +109,5 @@ model Course {
   batch        Batch      @relation(fields: [batchId], references: [id])
   sectionId    String
   section      Section    @relation(fields: [sectionId], references: [id])
+  // img          String?
 }
