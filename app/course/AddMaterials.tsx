@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,14 +14,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Materials } from "@prisma/client";
 import {
   ArrowRight,
-  File as FileIcon,
   PlusCircle,
-  Upload,
   X,
+  File as FileIcon,
+  Image as ImageIcon,
+  Upload,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { createClient } from "@supabase/supabase-js";
+import { prisma } from "@/prisma/prisma";
+import axios from "axios";
+import { title } from "process";
+import { ScaleLoader } from "react-spinners";
+
+// Initialize Supabase client
+const supabase = createClient(
+  "https://nxypdkglbksnowkcjvwp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54eXBka2dsYmtzbm93a2NqdndwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc4MDIwOTQsImV4cCI6MjA0MzM3ODA5NH0.IdjiNMZLVCBHJBKybGXpDJtWBgDdUPjT28r3eUu8whc"
+);
 
 interface FileWithPreview {
   file: File;
@@ -38,6 +50,7 @@ const AddMaterials = ({ courseId }: { courseId: string }) => {
   const session = useSession();
   const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (session?.data?.user.type !== "staff") return null;
@@ -49,8 +62,42 @@ const AddMaterials = ({ courseId }: { courseId: string }) => {
     reset,
   } = useForm<Materials>();
 
-  const onSubmit = (data: Materials) => {
-    console.log(data, selectedFiles);
+  const onSubmit = async (data: Materials) => {
+    setIsUploading(true);
+    const uploadedFileIds = await Promise.all(
+      selectedFiles.map(async (fileObj) => {
+        const { data: uploadData, error } = await supabase.storage
+          .from("Materials")
+          .upload(`${courseId}/${fileObj.file.name}`, fileObj.file);
+
+        if (error) {
+          console.error("Error uploading file:", error);
+          return null;
+        }
+
+        return uploadData?.path || null;
+      })
+    );
+
+    const validFileIds = uploadedFileIds.filter(
+      (id): id is string => id !== null
+    );
+
+    console.log("Uploaded file IDs:", validFileIds);
+
+    await axios
+      .post("/api/course/materials", {
+        data: {
+          title: data.title,
+          description: data.description,
+          docs: validFileIds,
+        },
+        courseId,
+      })
+      .then((e) => console.log(e))
+      .catch((e) => console.log(e));
+
+    setIsUploading(false);
     reset();
     setSelectedFiles([]);
     setIsDialogOpen(false);
@@ -160,8 +207,16 @@ const AddMaterials = ({ courseId }: { courseId: string }) => {
                 </div>
               )}
             </div>
-            <Button type="submit" className="w-full">
-              Add
+            <Button
+              type="submit"
+              className="w-full dark:bg-slate-400"
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <ScaleLoader height={15} radius={50} color="white" />
+              ) : (
+                "Submit"
+              )}
             </Button>
           </form>
         </DialogContent>

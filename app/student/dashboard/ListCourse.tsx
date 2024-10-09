@@ -13,7 +13,6 @@ import Link from "next/link";
 
 const ListCourse = async () => {
   const session = await auth();
-  console.log(session?.user.id);
   const student = await prisma.student.findUnique({
     where: {
       id: session?.user.id,

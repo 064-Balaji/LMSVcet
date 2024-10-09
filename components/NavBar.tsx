@@ -19,7 +19,6 @@ import { ModeToggle } from "./Toggle";
 
 const NavBar = async () => {
   const session = await auth();
-  console.log(session);
   const user = session?.user;
   const isStudentUser = session?.user.type === "student";
   // const isStaffUser = session?.user.type === 'staff';
