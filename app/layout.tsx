@@ -38,7 +38,7 @@ export default function RootLayout({
             <div>
               <NavBar />
               {children}
-              <Footer />
+              {/* <Footer /> */}
             </div>
           </ThemeProvider>
         </SessionProvider>
