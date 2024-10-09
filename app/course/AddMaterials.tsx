@@ -22,17 +22,9 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { createClient } from "@supabase/supabase-js";
-import { prisma } from "@/prisma/prisma";
 import axios from "axios";
-import { title } from "process";
 import { ScaleLoader } from "react-spinners";
-
-// Initialize Supabase client
-const supabase = createClient(
-  "https://nxypdkglbksnowkcjvwp.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54eXBka2dsYmtzbm93a2NqdndwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc4MDIwOTQsImV4cCI6MjA0MzM3ODA5NH0.IdjiNMZLVCBHJBKybGXpDJtWBgDdUPjT28r3eUu8whc"
-);
+import createClient from "@/components/supabase";
 
 interface FileWithPreview {
   file: File;
@@ -47,6 +39,7 @@ const isImageFile = (fileName: string) => {
 };
 
 const AddMaterials = ({ courseId }: { courseId: string }) => {
+  const supabase = createClient;
   const session = useSession();
   const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

@@ -15,7 +15,7 @@ const Contents = ({ courseId }: { courseId: string }) => {
         </TabsList>
         <TabsContent value="materials" className="pb-2">
           <AddMaterials courseId={courseId} />
-          {/* <ListMaterials courseId={courseId} /> */}
+          <ListMaterials courseId={courseId} />
         </TabsContent>
         <TabsContent value="assignment">Shows the Assignment</TabsContent>
         <TabsContent value="quiz">Shows the Quiz</TabsContent>
