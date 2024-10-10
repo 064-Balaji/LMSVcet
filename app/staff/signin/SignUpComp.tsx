@@ -210,43 +210,28 @@ const SignUpComp = () => {
       {/* Batch and Section Fields (Visible when Class In Charge is selected) */}
       {watchInCharge && (
         <div className="space-y-4 col-span-1 md:col-span-2">
-          <div className="space-y-2">
-            <Label htmlFor="batch">Batch</Label>
-            <Select value={curBatch} onValueChange={setCurBatch}>
-              <SelectTrigger id="batch">
-                <SelectValue placeholder="Select Batch" />
-              </SelectTrigger>
-              <SelectContent>
-                {batch.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>
-                    {b.batchName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="space-y-2 col-span-1 md:col-span-2">
+        <Label htmlFor="department">Department</Label>
+        <Select
+          value={watchDept}
+          onValueChange={(val) => setValue("departmentId", val)}
+        >
+          <SelectTrigger id="department">
+            <SelectValue placeholder="Select Department" />
+          </SelectTrigger>
+          <SelectContent>
+            {dept.map((d) => (
+              <SelectItem key={d.id} value={d.id}>
+                {d.deptName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.departmentId && (
+          <p className="text-red-500 text-sm">{errors.departmentId.message}</p>
+        )}
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="section">Section</Label>
-            <Select
-              value={watchSec!}
-              onValueChange={(val) => setValue("sectionId", val)}
-            >
-              <SelectTrigger id="section">
-                <SelectValue placeholder="Select Section" />
-              </SelectTrigger>
-              <SelectContent>
-                {sec.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.sectionName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.sectionId && (
-              <p className="text-red-500 text-sm">{errors.sectionId.message}</p>
-            )}
-          </div>
         </div>
       )}
 
