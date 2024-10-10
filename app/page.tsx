@@ -1,3 +1,4 @@
+import NavBar from "@/components/NavBar";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -16,18 +17,18 @@ export default function Home() {
       {/* About the LMS */}
       <div className="flex gap-10">
 
-      <section className="my-12 space-y-6 text-left">
-        <h2 className="text-3xl font-semibold">What is LMSVcet?</h2>
-        <p className="text-lg max-w-4xl text-justify">
-          LMSVcet is designed to replace the need for external platforms like Google Classroom and Canvas by providing a robust, college-specific learning management solution. It allows staff to post assignments, create and manage courses, and communicate effectively with students—all within one platform.
-        </p>
-      </section>
-      <section className="my-12 space-y-6 text-left">
-        <h2 className="text-3xl font-semibold">What You Expect?</h2>
-        <p className="text-lg max-w-xl text-justify">
-          LMSVcet is designed to replace the need for external platforms like Google Classroom and Canvas by providing a robust, college-specific learning management solution. 
-        </p>
-      </section>
+        <section className="my-12 space-y-6 text-left">
+          <h2 className="text-3xl font-semibold">What is LMSVcet?</h2>
+          <p className="text-lg max-w-4xl text-justify">
+            LMSVcet is designed to replace the need for external platforms like Google Classroom and Canvas by providing a robust, college-specific learning management solution. It allows staff to post assignments, create and manage courses, and communicate effectively with students—all within one platform.
+          </p>
+        </section>
+        <section className="my-12 space-y-6 text-left">
+          <h2 className="text-3xl font-semibold">What You Expect?</h2>
+          <p className="text-lg max-w-xl text-justify">
+            LMSVcet is designed to replace the need for external platforms like Google Classroom and Canvas by providing a robust, college-specific learning management solution.
+          </p>
+        </section>
       </div>
 
       {/* Key Features Section with Custom Grid */}

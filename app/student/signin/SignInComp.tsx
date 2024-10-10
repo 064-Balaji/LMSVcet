@@ -80,7 +80,7 @@ const SignInComp = () => {
               <BeatLoader size={10} color="white"/>
               :
               <>
-                Signup <LogIn className="ml-2 h-4 w-4" />
+                SignIn <LogIn className="ml-2 h-4 w-4" />
               </>
             }
         </Button>

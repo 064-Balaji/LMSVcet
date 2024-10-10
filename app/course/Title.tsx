@@ -22,7 +22,7 @@ type CourseWithRelations = Prisma.CourseGetPayload<{
 
 const Title = ({ course }: { course: CourseWithRelations }) => {
   return (
-    <Card className="w-full">
+    <Card className="container mx-auto">
       <CardHeader>
         <div className="flex justify-between items-start mb-4">
           <Badge variant="secondary" className="text-lg">
