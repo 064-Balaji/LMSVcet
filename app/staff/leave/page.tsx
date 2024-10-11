@@ -1,16 +1,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import React from 'react'
-import LeaveRequestForm from './LeaveRequestForm'
 import LeaveRequestDashboard from './LeaveRequestDashBoard'
 import StudentLeaveRequests from './StudentLeaveRequests'
 import LeaveReports from './LeaveReports'
+import LeaveRequestForm from '@/components/Leave/LeaveRequestForm'
 
 const page = () => {
   return (
     <div className='min-h-screen flex  container mx-auto py-8'>
     <Tabs defaultValue="studentRequests" className="flex flex-col md:flex-row w-full gap-2">
         <div className="w-full md:w-1/4 p-4 rounded-lg  md:border-r-4 ">
-            <h2 className="text-xl font-bold mb-4">Leave Management</h2>
+            <h2 className="text-xl font-bold mb-4">Dashboard</h2>
             <TabsList className="flex flex-col min-h-fit p-2 rounded-lg">
                 <TabsTrigger value="studentRequests" className="w-full text-left p-2 rounded-lg hover:bg-gray-200 transition-colors">
                     Student Leave Requests
@@ -26,8 +26,6 @@ const page = () => {
                 </TabsTrigger>
             </TabsList>
         </div>
-
-        {/* Right Side - Dynamic Content Based on Tab */}
         <div className="w-full md:w-3/4 p-4 rounded-lg ">
             <TabsContent value="studentRequests">
                 <StudentLeaveRequests />
