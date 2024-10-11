@@ -19,6 +19,7 @@ model Department {
   staffMembers Staff[]
   section      Section[]
   courses      Course[]
+  leave        Leave[]
 }
 
 model DeptHead {
@@ -38,6 +39,7 @@ model Batch {
   sections     Section[]
   student      Student[]
   courses      Course[]
+  leaves       Leave[]
 }
 
 model Section {
@@ -52,6 +54,7 @@ model Section {
   mentors         Staff[]     @relation("Mentors")
   students        Student[]
   courses         Course[]
+  leaves          Leave[]
 }
 
 model Staff {
@@ -68,8 +71,8 @@ model Staff {
   sectionId       String?
   section         Section?
   courses         Course[]
-
-  mentorSections Section[] @relation("Mentors")
+  mentorSections  Section[]  @relation("Mentors")
+  leaves          Leave[]
 }
 
 model Student {
@@ -86,6 +89,7 @@ model Student {
   section      Section    @relation(fields: [sectionId], references: [id])
   batchId      String
   batch        Batch      @relation(fields: [batchId], references: [id])
+  leaves       Leave[]
 }
 
 model VerificationToken {
@@ -120,4 +124,34 @@ model Materials {
   docs        String[]
   courseId    String
   course      Course   @relation(fields: [courseId], references: [id])
+}
+
+model Leave {
+  id            String      @id @default(cuid())
+  studentId     String?
+  staffId       String? // helps to get the leave under that staff
+  batchId       String? // applicable only for student
+  deptId        String
+  sectionId     String
+  fromDate      DateTime
+  toDate        DateTime
+  days          Int
+  leaveType     String? // applicable only for staff
+  userType      String //staff or student
+  leaveDuration String
+  reason        String
+  status        LeaveStatus @default(PENDING)
+  approvals     Json
+  student       Student?    @relation(fields: [studentId], references: [id])
+  staff         Staff?      @relation(fields: [staffId], references: [id])
+  batch         Batch?      @relation(fields: [batchId], references: [id])
+  department    Department  @relation(fields: [deptId], references: [id])
+  section       Section     @relation(fields: [sectionId], references: [id])
+  createdAt     DateTime    @default(now())
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

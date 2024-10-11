@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { auth } from '@/auth'
 import { prisma } from '@/prisma/prisma'
 import EditProfile from './EditProfile'
+import PortfolioForm from '@/app/portfolio/PortfolioForm'
 
 const userData = {
     avatar: "/placeholder.svg?height=200&width=200",
@@ -29,7 +30,7 @@ export default async function StaffProfilePage() {
                 <h1 className="text-3xl font-bold  capitalize">Hi There {staffData?.staffName} !</h1>
                 <Link href={`/portfolio/${staffData?.id}`}>
 
-                    <Button variant='secondary' className='text-xl p-2 rounded-md text-black shadow-md'>
+                    <Button variant='secondary' className='text-xl p-2 rounded-md shadow-md'>
                         View My Page <LinkIcon className='ml-2' />
                     </Button>
                 </Link>
@@ -98,7 +99,7 @@ export default async function StaffProfilePage() {
                     <CardContent>
                         {staffData?.courses.map((course, index) => (
                             <div key={index} className='grid grid-cols-2 gap-4 w-full mb-4'>
-                                <div className="flex flex-col justify-center bg-gray-50 p-4 rounded-lg">
+                                <div className="flex flex-col justify-center p-4 rounded-lg">
                                     <p className="font-semibold">Created {course.title} Course</p>
                                     <p className="font-medium uppercase">{course.code}</p>
                                     <p className="text-sm text-gray-500">Created On</p>
@@ -111,10 +112,9 @@ export default async function StaffProfilePage() {
                             </div>
                         ))}
                     </CardContent>
-
                 </Card>
             </div>
-
+            <PortfolioForm />
             <Button variant="destructive" className="mt-8">
                 <LogOut className="mr-2 h-4 w-4" />
                 <Link href={"/api/auth/signout"}>Log Out</Link>

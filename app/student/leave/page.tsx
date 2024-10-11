@@ -1,15 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import LeaveRequestForm from "./LeaveRequestForm"
+import LeaveRequestForm from "../../../components/Leave/LeaveRequestForm"
 import LeaveRequestDashboard from "./LeaveRequestDashBoard"
 
 export default function LeavePage() {
     return (
         <div className='min-h-screen flex  container mx-auto py-8'>
-            {/* Tabs (Side Menu + Right Content) */}
             <Tabs defaultValue="requestLeave" className="flex flex-col md:flex-row w-full gap-2">
-                {/* Side Menu */}
                 <div className="w-full md:w-1/4 p-4 rounded-lg  md:border-r-4 ">
-                    <h2 className="text-xl font-bold mb-4">Leave Management</h2>
+                    <h2 className="text-xl font-bold mb-4">Dashboard</h2>
                     <TabsList className="flex flex-col min-h-fit p-2 rounded-lg">
                         <TabsTrigger value="requestLeave" className="w-full text-left p-2 rounded-lg hover:bg-gray-200 transition-colors">
                             Request Leave
@@ -20,13 +18,12 @@ export default function LeavePage() {
                     </TabsList>
                 </div>
 
-                {/* Right Side - Dynamic Content Based on Tab */}
                 <div className="w-full md:w-3/4 p-4 rounded-lg ">
                     <TabsContent value="requestLeave">
                         <LeaveRequestForm />
                     </TabsContent>
                     <TabsContent value="yourRequest">
-                            <LeaveRequestDashboard />
+                        <LeaveRequestDashboard />
                     </TabsContent>
                 </div>
             </Tabs>
