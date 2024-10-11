@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import React from 'react'
-import LeaveRequestDashboard from './LeaveRequestDashBoard'
+import LeaveRequestDashboard from '../../../components/Leave/LeaveRequestDashBoard'
 import StudentLeaveRequests from './StudentLeaveRequests'
 import LeaveReports from './LeaveReports'
 import LeaveRequestForm from '@/components/Leave/LeaveRequestForm'

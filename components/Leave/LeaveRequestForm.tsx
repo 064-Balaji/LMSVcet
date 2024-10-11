@@ -16,7 +16,6 @@ export default async function LeaveRequestForm() {
             where: { id: session.user.id },
             include: { department: true, section: true }
         })
-        console.log(userData);
     } else {
         return userData;
     }
