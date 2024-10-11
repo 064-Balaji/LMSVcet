@@ -3,6 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
 import ListMaterials from "./ListMaterials";
 import AddMaterials from "./AddMaterials";
+import AddAssignment from "./AddAssignment";
+import ListAssignments from "./ListAssignments";
 
 const Contents = ({ courseId }: { courseId: string }) => {
   return (
@@ -17,7 +19,10 @@ const Contents = ({ courseId }: { courseId: string }) => {
           <AddMaterials courseId={courseId} />
           <ListMaterials courseId={courseId} />
         </TabsContent>
-        <TabsContent value="assignment">Shows the Assignment</TabsContent>
+        <TabsContent value="assignment" className="container">
+          <AddAssignment courseId={courseId} />
+          <ListAssignments courseId={courseId} />
+        </TabsContent>
         <TabsContent value="quiz">Shows the Quiz</TabsContent>
       </Tabs>
     </Card>

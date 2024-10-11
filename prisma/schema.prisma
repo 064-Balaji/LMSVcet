@@ -101,19 +101,20 @@ model VerificationToken {
 }
 
 model Course {
-  id           String      @id @default(cuid())
+  id           String       @id @default(cuid())
   title        String
   description  String?
   code         String
   departmentId String
   staffId      String
-  staff        Staff       @relation(fields: [staffId], references: [id])
-  department   Department  @relation(fields: [departmentId], references: [id])
+  staff        Staff        @relation(fields: [staffId], references: [id])
+  department   Department   @relation(fields: [departmentId], references: [id])
   batchId      String
-  batch        Batch       @relation(fields: [batchId], references: [id])
+  batch        Batch        @relation(fields: [batchId], references: [id])
   sectionId    String
-  section      Section     @relation(fields: [sectionId], references: [id])
+  section      Section      @relation(fields: [sectionId], references: [id])
   materials    Materials[]
+  assignments  Assignment[]
   // img          String?
 }
 
@@ -134,7 +135,7 @@ model Leave {
   deptId        String
   sectionId     String
   fromDate      DateTime
-  forMedical Boolean
+  forMedical    Boolean
   toDate        DateTime
   days          Float
   leaveType     String? // applicable only for staff
@@ -155,4 +156,15 @@ enum LeaveStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  referLink   String?
+  docs        String[]
+  dueDate     DateTime?
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
 }

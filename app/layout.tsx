@@ -5,8 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "@/components/ui/sonner"
-
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,12 +17,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
-    <html lang="en">
-      <body
-        suppressHydrationWarning
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="system">
             <NavBar />

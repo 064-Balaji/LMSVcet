@@ -1,30 +1,25 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import createClient from "@/components/supabase";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Materials } from "@prisma/client";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import axios from "axios";
 import {
   ArrowRight,
-  PlusCircle,
-  X,
   File as FileIcon,
-  Image as ImageIcon,
+  PlusCircle,
   Upload,
+  X,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { ScaleLoader } from "react-spinners";
-import createClient from "@/components/supabase";
 
 interface FileWithPreview {
   file: File;
@@ -40,13 +35,11 @@ const isImageFile = (fileName: string) => {
 
 const AddMaterials = ({ courseId }: { courseId: string }) => {
   const supabase = createClient;
-  const session = useSession();
+  const { data: session } = useSession();
   const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  if (session?.data?.user.type !== "staff") return null;
 
   const {
     register,
@@ -55,45 +48,57 @@ const AddMaterials = ({ courseId }: { courseId: string }) => {
     reset,
   } = useForm<Materials>();
 
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach((fileObj) => {
+        if (fileObj.preview) {
+          URL.revokeObjectURL(fileObj.preview);
+        }
+      });
+    };
+  }, [selectedFiles]);
+
   const onSubmit = async (data: Materials) => {
     setIsUploading(true);
-    const uploadedFileIds = await Promise.all(
-      selectedFiles.map(async (fileObj) => {
-        const { data: uploadData, error } = await supabase.storage
-          .from("Materials")
-          .upload(`${courseId}/${fileObj.file.name}`, fileObj.file);
+    try {
+      const uploadedFileIds = await Promise.all(
+        selectedFiles.map(async (fileObj) => {
+          const { data: uploadData, error } = await supabase.storage
+            .from("Materials")
+            .upload(`${courseId}/${fileObj.file.name}`, fileObj.file);
 
-        if (error) {
-          console.error("Error uploading file:", error);
-          return null;
-        }
+          if (error) {
+            console.error("Error uploading file:", error);
+            return null;
+          }
 
-        return uploadData?.path || null;
-      })
-    );
+          return uploadData?.path || null;
+        })
+      );
 
-    const validFileIds = uploadedFileIds.filter(
-      (id): id is string => id !== null
-    );
+      const validFileIds = uploadedFileIds.filter(
+        (id): id is string => id !== null
+      );
 
-    console.log("Uploaded file IDs:", validFileIds);
+      console.log("Uploaded file IDs:", validFileIds);
 
-    await axios
-      .post("/api/course/materials", {
+      await axios.post("/api/course/materials", {
         data: {
           title: data.title,
           description: data.description,
           docs: validFileIds,
         },
         courseId,
-      })
-      .then((e) => console.log(e))
-      .catch((e) => console.log(e));
+      });
 
-    setIsUploading(false);
-    reset();
-    setSelectedFiles([]);
-    setIsDialogOpen(false);
+      reset();
+      setSelectedFiles([]);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,6 +126,8 @@ const AddMaterials = ({ courseId }: { courseId: string }) => {
     fileInputRef.current?.click();
   };
 
+  if (session?.user?.type !== "staff") return null;
+
   return (
     <div className="flex justify-between mx-4 my-4">
       <div className="flex items-center gap-2">
@@ -134,9 +141,9 @@ const AddMaterials = ({ courseId }: { courseId: string }) => {
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-3xl">
-          <DialogHeader className="text-lg font-semibold">
+          <DialogTitle className="text-lg font-semibold">
             Add new materials
-          </DialogHeader>
+          </DialogTitle>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
