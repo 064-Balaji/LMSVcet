@@ -5,22 +5,25 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { useForm } from 'react-hook-form';
-import React from 'react';
+import React, { useState } from 'react';
 import { Prisma } from '@prisma/client';
+import { BarLoader, ScaleLoader } from 'react-spinners';
+import axios from 'axios';
+import { toast } from "sonner"
 
 type LeavesWithRelations = Prisma.LeaveGetPayload<{
     include: {
-      student: true;       
-      staff: true;         
-      department: true;    
-      section: true;       
-      courses: true;       
+        student: true;
+        staff: true;
+        department: true;
+        section: true;
+        courses: true;
     };
-  }>;
-  
-  interface LeaveFormProps {
-    userData: LeavesWithRelations; 
-    userType: 'staff' | 'student'; 
+}>;
+
+interface LeaveFormProps {
+    userData: LeavesWithRelations;
+    userType: 'staff' | 'student';
 }
 
 
@@ -36,15 +39,17 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
     const watchFromDate = watch('fromDate');
     const watchToDate = watch('toDate');
     const watchLeaveDuration = watch('leaveDuration', 'full');
-   
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     React.useEffect(() => {
-        if (!userData) return; 
-        
+        if (!userData) return;
+
         setValue('deptId', userData.department.id || '');
         setValue('sectionId', userData.section.id || '');
         setValue('userType', userType || '');
-    
+
         if (userType === "student") {
             setValue('studentId', userData.id || '');
             setValue('batchId', userData.batchId || '');
@@ -60,8 +65,8 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
             });
         }
     }, [userData, userType, setValue]);
-    
-    
+
+
 
     const isNonWorkingDay = (date: Date) => {
         const day = date.getDay(); // Sunday is 0, Saturday is 6
@@ -102,16 +107,28 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
     }, [watchFromDate, watchToDate, watchLeaveDuration, setValue]);
 
 
-
-    const onSubmit = (data: any) => {
-        if(userType === 'student'){
-            
+    const onSubmit = async (data: any) => {
+        setIsSubmitting(true);
+        setSuccessMessage(null);
+        setErrorMessage(null);
+        try {
+            const response = await axios.post("/api/leave", data);
+            setSuccessMessage(response.data.message || "Leave request submitted successfully.");
+            toast("Leave request submitted successfully.", {
+                description: "Updates will be notified via mail",
+            })
+        } catch (err: any) {
+            console.log(err.response?.data?.message || "An error occurred during submission.");
+            setErrorMessage(err.response?.data?.message || "An error occurred during submission.");
+            toast("An error occurred during submission.", {
+                description: "Cannot Submit the leave",
+            })
+        } finally {
+            setIsSubmitting(false);
         }
-        if(userType === 'staff'){
-
-        }
-        console.log('Form Data:', data);
     };
+
+
 
     return (
         <div className="flex items-center justify-center p-4">
@@ -138,6 +155,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                                     })}
                                     id="fromDate"
                                     type="date"
+                                    disabled={isSubmitting}
                                 />
                                 {errors.fromDate && typeof errors.fromDate.message === 'string' && (
                                     <p className="text-red-500">{errors.fromDate.message}</p>
@@ -154,14 +172,15 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                                     })}
                                     id="toDate"
                                     type="date"
+                                    disabled={isSubmitting}
                                 />
                                 {errors.toDate && typeof errors.toDate.message === 'string' && (
                                     <p className="text-red-500">{errors.toDate.message}</p>
                                 )}
                             </div>
                         </div>
-                        
-                        
+
+
 
                         <div className="space-y-2">
                             <Label>Leave Duration</Label>
@@ -172,6 +191,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                                         type="radio"
                                         value="full"
                                         id="full"
+                                        disabled={isSubmitting}
                                     />
                                     <Label htmlFor="full">Full Day</Label>
                                 </div>
@@ -181,6 +201,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                                         type="radio"
                                         value="half"
                                         id="half"
+                                        disabled={isSubmitting}
                                     />
                                     <Label htmlFor="half">Half Day</Label>
                                 </div>
@@ -196,6 +217,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                                     {...register('forMedical')}
                                     type='checkbox'
                                     id="medical"
+                                    disabled={isSubmitting}
                                 />
                                 <Label htmlFor="medical">Medical Leave</Label>
                             </div>
@@ -203,7 +225,8 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                         {userType === 'staff' && (
                             <div className="space-y-2">
                                 <Label htmlFor="leaveType">Leave Type</Label>
-                                <select {...register('leaveType', { required: 'Please select a leave type' })} id="leaveType">
+                                <select {...register('leaveType', { required: 'Please select a leave type' })} id="leaveType"
+                                    disabled={isSubmitting}>
                                     <option value="">Select Leave Type</option>
                                     <option value="sick">Sick Leave</option>
                                     <option value="vacation">Vacation Leave</option>
@@ -222,6 +245,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                                     required: 'Please provide a reason for leave',
                                 })}
                                 id="reason"
+                                disabled={isSubmitting}
                                 placeholder="Please provide a detailed reason for your leave request"
                             />
                             {errors.reason && typeof errors.reason.message === 'string' && (
@@ -234,10 +258,28 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ userData, userType }) => {
                                 {...register('days')}
                                 readOnly
                                 type="number"
+                                disabled={isSubmitting}
                                 placeholder="No. of leave days"
                             />
                         </div>
-                        <Button type="submit">Submit Leave Request</Button>
+                        {/* {successMessage && (
+                            <div className="mb-4 text-green-600">
+                                {successMessage}
+                            </div>
+                        )}
+                        {errorMessage && (
+                            <div className="mb-4 text-red-600">
+                                {errorMessage}
+                            </div>
+                        )} */}
+                        <Button type="submit" className="w-full py-2 dark:bg-slate-400">
+                            {isSubmitting ?
+                                <ScaleLoader height={15} radius={50} color="white" />
+                                :
+                                "Submit Leave Request"
+                            }
+
+                        </Button>
                     </CardContent>
                 </form>
             </Card>

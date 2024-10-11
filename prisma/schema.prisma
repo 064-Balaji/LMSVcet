@@ -134,8 +134,9 @@ model Leave {
   deptId        String
   sectionId     String
   fromDate      DateTime
+  forMedical Boolean
   toDate        DateTime
-  days          Int
+  days          Float
   leaveType     String? // applicable only for staff
   userType      String //staff or student
   leaveDuration String

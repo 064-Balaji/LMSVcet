@@ -1,13 +1,44 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { CalendarDays, CheckCircle, Clock, XCircle } from "lucide-react"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-export default function LeaveRequestDashboard() {
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CalendarDays, CheckCircle, Clock, XCircle } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { prisma } from "@/prisma/prisma";
+import { auth } from "@/auth";
+
+export default async function LeaveRequestDashboard() {
+    const session = await auth();
+    let userId;
+    let leaveDatas: any[] = [];
+
+    if (session?.user.type === 'student') {
+        userId = session.user.id;
+        leaveDatas = await prisma.leave.findMany({
+            where: {
+                studentId: userId
+            }
+        });
+    } else if (session?.user.type === 'staff') {
+        userId = session.user.id;
+        leaveDatas = await prisma.leave.findMany({
+            where: {
+                staffId: userId
+            }
+        });
+    } else {
+        console.error("Unknown user type");
+    }
+
+    const leaveRequests = leaveDatas.map(request => ({
+        id: request.id,
+        type: request.leaveType, 
+        from: request.fromDate.toISOString().split('T')[0], 
+        to: request.toDate.toISOString().split('T')[0], 
+        mentorStatus: request.approvals?.hodApproval || "Pending", 
+        classInchargeStatus: request.approvals?.classInchargeApproval || "Pending", 
+        hosStatus: request.status === 'PENDING' ? "Pending" : request.status 
+    }));
+
     return (
         <div className="container mx-auto p-6">
             <h1 className="mb-6 text-3xl font-bold">Leave Request Dashboard</h1>
@@ -29,7 +60,7 @@ export default function LeaveRequestDashboard() {
                         <CheckCircle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">2</div>
+                        <div className="text-2xl font-bold">2 To Do</div>
                         <p className="text-xs text-muted-foreground">75% approval rate</p>
                     </CardContent>
                 </Card>
@@ -39,7 +70,7 @@ export default function LeaveRequestDashboard() {
                         <Clock className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">8</div>
+                        <div className="text-2xl font-bold">8 To Do</div>
                         <p className="text-xs text-muted-foreground">Wait for the approval</p>
                     </CardContent>
                 </Card>
@@ -49,7 +80,7 @@ export default function LeaveRequestDashboard() {
                         <XCircle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">0</div>
+                        <div className="text-2xl font-bold">0 To Do</div>
                         <p className="text-xs text-muted-foreground">-1 from last month</p>
                     </CardContent>
                 </Card>
@@ -62,7 +93,7 @@ export default function LeaveRequestDashboard() {
                 <CardContent>
                     <Table>
                         <TableHeader>
-                            <TableRow className="">
+                            <TableRow>
                                 <TableHead className="text-center">Type</TableHead>
                                 <TableHead className="text-center">From</TableHead>
                                 <TableHead className="text-center">To</TableHead>
@@ -73,7 +104,7 @@ export default function LeaveRequestDashboard() {
                         <TableBody className="text-center">
                             {leaveRequests.map((request) => (
                                 <TableRow key={request.id}>
-                                    <TableCell>{request.type}</TableCell>
+                                    <TableCell className="capitalize">{request.type}</TableCell>
                                     <TableCell>{request.from}</TableCell>
                                     <TableCell>{request.to}</TableCell>
                                     <TableCell>
@@ -88,10 +119,20 @@ export default function LeaveRequestDashboard() {
                                             </PopoverTrigger>
                                             <PopoverContent className="w-80">
                                                 <div className="grid gap-4">
-                                                    <h4 className="font-medium leading-none">HOD</h4>
-                                                    <h4 className="font-medium leading-none">ClassIncharge</h4>
-                                                    <h4 className="font-medium leading-none">Mentor</h4>
+                                                    {/* Conditionally render comments based on user type */}
+                                                    {session?.user.type === 'student' ? (
+                                                        <>
+                                                            <h4 className="font-medium leading-none">HOD: {request.mentorStatus}</h4>
+                                                            <h4 className="font-medium leading-none">Class In Charge: {request.classInchargeStatus}</h4>
+                                                            <h4 className="font-medium leading-none">Mentor: {request.hosStatus}</h4>
+                                                        </>
+                                                    ) : session?.user.type === 'staff' ? (
+                                                        <>
+                                                            <h4 className="font-medium leading-none">HOD: {request.mentorStatus}</h4>
+                                                        </>
+                                                    ) : null}
                                                 </div>
+
                                             </PopoverContent>
                                         </Popover>
                                     </TableCell>
@@ -106,24 +147,10 @@ export default function LeaveRequestDashboard() {
                 <Button variant="outline">Export Report</Button>
             </div>
         </div>
-    )
+    );
 }
 
-const leaveRequests = [
-    { id: 1, type: "Vacation", from: "2023-07-01", to: "2023-07-05", mentorStatus: "Approved", classInchargeStatus: "Approved", hosStatus: "Approved" },
-    { id: 2, type: "Sick Leave", from: "2023-07-03", to: "2023-07-04", mentorStatus: "Approved", classInchargeStatus: "Pending", hosStatus: "Approved" },
-    { id: 3, type: "Personal", from: "2023-07-10", to: "2023-07-10", mentorStatus: "Pending", classInchargeStatus: "Pending", hosStatus: "Pending" },
-    { id: 4, type: "Vacation", from: "2023-07-15", to: "2023-07-20", mentorStatus: "Rejected", classInchargeStatus: "Pending", hosStatus: "Pending" },
-    { id: 5, type: "Sick Leave", from: "2023-07-02", to: "2023-07-03", mentorStatus: "Approved", classInchargeStatus: "Rejected", hosStatus: "Pending" },
-    { id: 6, type: "Sick Leave", from: "2023-07-02", to: "2023-07-03", mentorStatus: "Approved", classInchargeStatus: "Rejected", hosStatus: "Pending" },
-    { id: 7, type: "Sick Leave", from: "2023-07-02", to: "2023-07-03", mentorStatus: "Approved", classInchargeStatus: "Rejected", hosStatus: "Pending" },
-    { id: 8, type: "Sick Leave", from: "2023-07-02", to: "2023-07-03", mentorStatus: "Approved", classInchargeStatus: "Rejected", hosStatus: "Pending" },
-    { id: 9, type: "Sick Leave", from: "2023-07-02", to: "2023-07-03", mentorStatus: "Approved", classInchargeStatus: "Rejected", hosStatus: "Pending" },
-    { id: 10, type: "Sick Leave", from: "2023-07-02", to: "2023-07-03", mentorStatus: "Approved", classInchargeStatus: "Rejected", hosStatus: "Pending" },
-]
-
-// Function to return status color based on status string
-function getStatusColor(status:any) {
+function getStatusColor(status: any) {
     switch (status) {
         case "Approved":
             return "bg-green-500";

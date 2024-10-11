@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import LeaveRequestForm from "../../../components/Leave/LeaveRequestForm"
-import LeaveRequestDashboard from "./LeaveRequestDashBoard"
+import LeaveRequestDashboard from "@/components/Leave/LeaveRequestDashBoard"
 
 export default function LeavePage() {
     return (
